@@ -178,7 +178,7 @@ h1 { color: var(--primary-color); }
 .tables-container {
     display: flex;
     gap: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     width: 100%;
 }
 
@@ -477,4 +477,67 @@ button:hover { opacity: 0.8; }
     font-size: 1.1rem;
     display: inline-block;
     line-height: 1;
+}
+
+/* Start Mode Cards Grid */
+.start-modes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.mode-card {
+    background-color: var(--surface-hover);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-align: center;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.mode-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    border-color: var(--mode-accent) !important;
+}
+
+.mode-card .mode-badge {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    color: var(--subtext);
+    transition: color 0.2s;
+}
+
+.mode-card:hover .mode-badge {
+    color: var(--mode-accent);
+}
+
+.mode-card .mode-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.mode-card.single-kr {
+    --mode-accent: var(--primary-color);
+}
+.mode-card.single-rk {
+    --mode-accent: var(--btn-single-rk-bg);
+}
+.mode-card.phrase-kr {
+    --mode-accent: var(--btn-phrase-kr-bg);
+}
+.mode-card.phrase-rk {
+    --mode-accent: var(--btn-phrase-rk-bg);
 }

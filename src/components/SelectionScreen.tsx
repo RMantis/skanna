@@ -84,7 +84,10 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz
 
     return (
         <div className="config-section">
-            <h3 style={{ marginBottom: '5px', textAlign: 'center' }}>{t.chooseKana}</h3>
+            <h3 style={{ margin: '0 0 5px 0', textAlign: 'center' }}>{t.chooseKana}</h3>
+            <div style={{ textAlign: 'center', fontSize: '0.85rem', color: 'var(--subtext)', marginBottom: '15px' }}>
+                {t.selectedSummary(counts.total)}
+            </div>
 
             <div className="tables-container">
                 {/* Tabella Hiragana */}
@@ -220,21 +223,23 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz
                 </div>
             </div>
 
-            <div id="tableSelectionSummary" style={{ textAlign: 'center', margin: '5px 0 15px 0', fontSize: '1.05rem', color: 'var(--text-color)', fontWeight: 600, letterSpacing: '0.5px' }}>
-                {t.selectedSummary(counts.total, counts.hira, counts.kata)}
-            </div>
-
-
-
-            <div className="start-buttons-container" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', width: '100%' }}>
-                <div style={{ display: 'flex', gap: '15px' }}>
-                    <button className="primary" style={{ flex: 1, padding: '12px' }} onClick={() => onStartQuiz('kana_to_romaji', selectedHira, selectedKata)}>{t.singleKanaRomaji}</button>
-                    <button className="primary" style={{ flex: 1, padding: '12px', backgroundColor: 'var(--btn-single-rk-bg)', color: 'var(--btn-single-rk-text)' }} onClick={() => onStartQuiz('romaji_to_kana', selectedHira, selectedKata)}>{t.singleRomajiKana}</button>
-                </div>
-                <div style={{ display: 'flex', gap: '15px' }}>
-                    <button className="primary" style={{ flex: 1, padding: '12px', backgroundColor: 'var(--btn-phrase-kr-bg)', color: 'var(--btn-phrase-kr-text)' }} onClick={() => onStartQuiz('kana_to_romaji_phrases', selectedHira, selectedKata)}>{t.phrasesKanaRomaji}</button>
-                    <button className="primary" style={{ flex: 1, padding: '12px', backgroundColor: 'var(--btn-phrase-rk-bg)', color: 'var(--btn-phrase-rk-text)' }} onClick={() => onStartQuiz('romaji_to_kana_phrases', selectedHira, selectedKata)}>{t.phrasesRomajiKana}</button>
-                </div>
+            <div className="start-modes-grid">
+                <button type="button" className="mode-card single-kr" onClick={() => onStartQuiz('kana_to_romaji', selectedHira, selectedKata)}>
+                    <span className="mode-badge">{t.single}</span>
+                    <span className="mode-title">{t.kanaToRomaji}</span>
+                </button>
+                <button type="button" className="mode-card single-rk" onClick={() => onStartQuiz('romaji_to_kana', selectedHira, selectedKata)}>
+                    <span className="mode-badge">{t.single}</span>
+                    <span className="mode-title">{t.romajiToKana}</span>
+                </button>
+                <button type="button" className="mode-card phrase-kr" onClick={() => onStartQuiz('kana_to_romaji_phrases', selectedHira, selectedKata)}>
+                    <span className="mode-badge">{t.phrases}</span>
+                    <span className="mode-title">{t.kanaToRomaji}</span>
+                </button>
+                <button type="button" className="mode-card phrase-rk" onClick={() => onStartQuiz('romaji_to_kana_phrases', selectedHira, selectedKata)}>
+                    <span className="mode-badge">{t.phrases}</span>
+                    <span className="mode-title">{t.romajiToKana}</span>
+                </button>
             </div>
         </div>
     );
