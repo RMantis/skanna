@@ -20,9 +20,8 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz
             setSelectedHira(saved.hira);
             setSelectedKata(saved.kata);
         } else {
-            const defaultGroups = ['Vowels', 'K'];
-            setSelectedHira(defaultGroups);
-            setSelectedKata(defaultGroups);
+            setSelectedHira(['Vowels', 'K']);
+            setSelectedKata([]);
         }
         setLastMode(storageService.loadLastMode());
     }, []);
