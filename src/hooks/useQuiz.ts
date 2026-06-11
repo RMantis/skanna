@@ -33,6 +33,7 @@ export function useQuiz() {
 
     const activePoolRef = useRef<KanaItem[]>([]);
     const currentKanaRef = useRef<any>(null);
+    const historyRef = useRef<string[]>([]);
 
     const getCharacterWeight = useCallback((char: string) => {
         const stats = storageService.loadStats();
@@ -102,12 +103,20 @@ export function useQuiz() {
         }
         
         if (pool.length === 0) return null;
+
+        // Progressive learning logic: limit selection pool to seen characters + first 3 unseen ones
+        const stats = storageService.loadStats();
+        const seenPool = pool.filter(item => stats[item.kana] !== undefined);
+        const unseenPool = pool.filter(item => stats[item.kana] === undefined);
+        const activeUnseen = unseenPool.slice(0, 3);
+        const effectivePool = [...seenPool, ...activeUnseen];
+        const finalPool = effectivePool.length > 0 ? effectivePool : pool;
         
         const len = Math.floor(Math.random() * 4) + 2;
         let kanaStr = '';
         let romajiStr = '';
         for (let i = 0; i < len; i++) {
-            const char = pool[Math.floor(Math.random() * pool.length)];
+            const char = finalPool[Math.floor(Math.random() * finalPool.length)];
             kanaStr += char.kana;
             romajiStr += char.romaji;
         }
@@ -141,17 +150,45 @@ export function useQuiz() {
             nextKana = phrase;
         } else {
             const pool = activePoolRef.current;
-            let filteredPool = pool;
+            const stats = storageService.loadStats();
+
+            // Progressive learning logic: limit selection pool to seen characters + first 3 unseen ones
+            const seenPool = pool.filter(item => stats[item.kana] !== undefined);
+            const unseenPool = pool.filter(item => stats[item.kana] === undefined);
+            const activeUnseen = unseenPool.slice(0, 3);
+            const effectivePool = [...seenPool, ...activeUnseen];
+            const basePool = effectivePool.length > 0 ? effectivePool : pool;
+            
+            let filteredPool = basePool;
+
+            // History buffer: exclude recently shown kana
+            const historyLength = Math.min(5, Math.floor(basePool.length / 2));
+            if (historyLength > 0) {
+                const poolWithoutHistory = basePool.filter(item => !historyRef.current.includes(item.kana));
+                if (poolWithoutHistory.length > 0) {
+                    filteredPool = poolWithoutHistory;
+                }
+            }
+
             const prevKana = currentKanaRef.current;
-            if (pool.length > 1 && prevKana) {
-                const filteredByRomaji = pool.filter(item => item.romaji !== prevKana.romaji);
+            if (filteredPool.length > 1 && prevKana) {
+                const filteredByRomaji = filteredPool.filter(item => item.romaji !== prevKana.romaji);
                 if (filteredByRomaji.length > 0) {
                     filteredPool = filteredByRomaji;
                 } else {
-                    filteredPool = pool.filter(item => item.kana !== prevKana.kana);
+                    filteredPool = filteredPool.filter(item => item.kana !== prevKana.kana);
                 }
             }
+            
             nextKana = selectWeightedRandom(filteredPool);
+
+            // Record nextKana in history buffer
+            if (nextKana) {
+                historyRef.current = [...historyRef.current, nextKana.kana];
+                if (historyRef.current.length > historyLength) {
+                    historyRef.current = historyRef.current.slice(historyRef.current.length - historyLength);
+                }
+            }
 
             if (mode === 'romaji_to_kana' && nextKana) {
                 generatedOpts = generateOptions(nextKana.kana, pool);
@@ -192,6 +229,7 @@ export function useQuiz() {
 
         activePoolRef.current = pool;
         currentKanaRef.current = null;
+        historyRef.current = []; // Clear history buffer on quiz start
 
         setState({
             quizActive: true,

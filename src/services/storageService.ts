@@ -32,6 +32,14 @@ export const storageService = {
         }
     },
 
+    clearStats(): void {
+        try {
+            localStorage.removeItem(STATS_KEY);
+        } catch (e) {
+            console.error("Errore nella cancellazione delle statistiche:", e);
+        }
+    },
+
     recordResult(char: string, isCorrect: boolean): KanaStatsMap {
         const stats = this.loadStats();
         if (!stats[char]) {

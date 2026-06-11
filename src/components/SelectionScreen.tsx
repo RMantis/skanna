@@ -222,6 +222,23 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ onStartQuiz })
                 Selezionati: {counts.total} caratteri ({counts.hira} Hiragana, {counts.kata} Katakana)
             </div>
 
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
+                <button 
+                    type="button" 
+                    className="secondary" 
+                    style={{ padding: '6px 12px', fontSize: '0.85rem', color: 'var(--error-color)', border: '1px solid rgba(243, 139, 168, 0.3)' }} 
+                    onClick={() => {
+                        if (window.confirm("Sei sicuro di voler resettare tutte le statistiche di studio? I progressi andranno persi.")) {
+                            storageService.clearStats();
+                            window.alert("Statistiche resettate con successo!");
+                            window.location.reload();
+                        }
+                    }}
+                >
+                    🔄 Resetta Statistiche
+                </button>
+            </div>
+
             <div className="start-buttons-container" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', width: '100%' }}>
                 <div style={{ display: 'flex', gap: '15px' }}>
                     <button className="primary" style={{ flex: 1, padding: '12px' }} onClick={() => onStartQuiz('kana_to_romaji', selectedHira, selectedKata)}>Singoli: Kana → Romaji</button>
