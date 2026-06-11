@@ -8,6 +8,48 @@
     --success-color: #a6e3a1;
     --warning-color: #f9e2af;
     --error-color: #f38ba8;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --badge-bg: rgba(255, 255, 255, 0.08);
+    --table-row-hover: rgba(255, 255, 255, 0.05);
+    --hira-color: #f5c2e7;
+    --kata-color: #89b4fa;
+    --hira-highlight: rgba(245, 194, 231, 0.12);
+    --kata-highlight: rgba(137, 180, 250, 0.12);
+    --primary-btn-text: #11111b;
+    --btn-single-rk-bg: #cba6f7;
+    --btn-single-rk-text: #11111b;
+    --btn-phrase-kr-bg: #a6e3a1;
+    --btn-phrase-kr-text: #11111b;
+    --btn-phrase-rk-bg: #f9e2af;
+    --btn-phrase-rk-text: #11111b;
+}
+
+html[data-theme='light'] {
+    --bg-color: #eff1f5;
+    --surface-color: #ffffff;
+    --surface-hover: #e6e9ef;
+    --text-color: #4c4f69;
+    --subtext: #6c6f85;
+    --primary-color: #1e66f5;
+    --success-color: #40a02b;
+    --warning-color: #df8e1d;
+    --error-color: #d20f39;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --shadow-color: rgba(0, 0, 0, 0.08);
+    --badge-bg: rgba(0, 0, 0, 0.05);
+    --table-row-hover: rgba(0, 0, 0, 0.03);
+    --hira-color: #c2185b;
+    --kata-color: #1e66f5;
+    --hira-highlight: rgba(194, 24, 91, 0.08);
+    --kata-highlight: rgba(30, 102, 245, 0.08);
+    --primary-btn-text: #ffffff;
+    --btn-single-rk-bg: #8839ef;
+    --btn-single-rk-text: #ffffff;
+    --btn-phrase-kr-bg: #40a02b;
+    --btn-phrase-kr-text: #ffffff;
+    --btn-phrase-rk-bg: #df8e1d;
+    --btn-phrase-rk-text: #ffffff;
 }
 
 body {
@@ -29,7 +71,7 @@ h1 { color: var(--primary-color); }
     background-color: var(--surface-color);
     padding: 30px;
     border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 15px var(--shadow-color);
     max-width: 1000px;
     width: 100%;
     box-sizing: border-box;
@@ -71,7 +113,7 @@ h1 { color: var(--primary-color); }
 
 .mode-btn.active {
     background-color: var(--primary-color);
-    color: #11111b;
+    color: var(--primary-btn-text);
 }
 
 /* Scelte multiple per Romaji -> Kana */
@@ -107,7 +149,7 @@ h1 { color: var(--primary-color); }
     left: 8px;
     font-size: 0.75rem;
     color: var(--subtext);
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: var(--badge-bg);
     padding: 1px 5px;
     border-radius: 4px;
     font-weight: bold;
@@ -156,11 +198,11 @@ h1 { color: var(--primary-color); }
 }
 
 .table-wrapper h4.hira-title {
-    color: #f5c2e7;
+    color: var(--hira-color);
 }
 
 .table-wrapper h4.kata-title {
-    color: #89b4fa;
+    color: var(--kata-color);
 }
 
 table.kana-table {
@@ -171,7 +213,7 @@ table.kana-table {
 table.kana-table th, table.kana-table td {
     padding: 8px 4px;
     text-align: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-color);
 }
 
 table.kana-table th {
@@ -186,15 +228,15 @@ table.kana-table tr {
 }
 
 table.kana-table tr:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: var(--table-row-hover);
 }
 
 table.kana-table tr.selected-row {
-    background-color: rgba(137, 180, 250, 0.12);
+    background-color: var(--kata-highlight);
 }
 
 table.kana-table.hira-table tr.selected-row {
-    background-color: rgba(245, 194, 231, 0.12);
+    background-color: var(--hira-highlight);
 }
 
 table.kana-table td.group-label {
@@ -206,13 +248,13 @@ table.kana-table td.group-label {
 }
 
 table.kana-table.hira-table td:not(.group-label) {
-    color: #f5c2e7;
+    color: var(--hira-color);
     font-size: 1.15rem;
     font-weight: normal;
 }
 
 table.kana-table.kata-table td:not(.group-label) {
-    color: #89b4fa;
+    color: var(--kata-color);
     font-size: 1.15rem;
     font-weight: normal;
 }
@@ -295,7 +337,7 @@ input[type="text"]:focus {
 
 button.primary {
     background-color: var(--primary-color);
-    color: #11111b;
+    color: var(--primary-btn-text);
     border: none;
     padding: 10px 20px;
     font-size: 1.1rem;
@@ -331,31 +373,108 @@ button:hover { opacity: 0.8; }
     padding-top: 15px;
 }
 
-/* Language Switcher Dropdown Style */
-.language-selector {
+/* Custom Header Controls (Theme & Lang Selector) */
+.header-controls {
+    position: fixed;
+    top: 20px;
+    right: 20px;
     display: flex;
     align-items: center;
-    gap: 6px;
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    background-color: var(--surface-hover);
-    padding: 4px 8px;
-    border-radius: 6px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    gap: 12px;
+    z-index: 100;
 }
 
-.language-selector select {
+/* Base button style for theme, reset, and language icons (Flat style) */
+.theme-toggle-btn,
+.dropdown-trigger,
+.reset-btn {
+    background: none;
+    border: none;
+    box-shadow: none;
+    color: var(--subtext);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+}
+
+.theme-toggle-btn:hover,
+.dropdown-trigger:hover,
+.reset-btn:hover {
+    background-color: var(--surface-hover);
+    color: var(--text-color);
+    transform: scale(1.08);
+}
+
+/* Custom Dropdown Container */
+.custom-dropdown {
+    position: relative;
+}
+
+/* Dropdown Menu (Open State) */
+.dropdown-menu {
+    position: absolute;
+    top: 44px;
+    right: 0;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 140px;
+    box-shadow: 0 4px 15px var(--shadow-color);
+    animation: fadeInScale 0.15s ease-out;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Dropdown Item Style */
+.dropdown-item {
     background: none;
     border: none;
     color: var(--text-color);
-    font-size: 0.85rem;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 6px;
     cursor: pointer;
-    outline: none;
-    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: background-color 0.15s, color 0.15s;
+    text-align: left;
 }
 
-.language-selector select option {
-    background-color: var(--surface-color);
-    color: var(--text-color);
+.dropdown-item:hover {
+    background-color: var(--surface-hover);
+}
+
+.dropdown-item.active {
+    background-color: rgba(137, 180, 250, 0.15);
+    color: var(--primary-color);
+}
+
+.dropdown-item .flag {
+    font-size: 1.1rem;
+    display: inline-block;
+    line-height: 1;
 }

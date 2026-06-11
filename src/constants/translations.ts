@@ -25,6 +25,9 @@ export interface TranslationDictionary {
     solutionIs: (solution: string) => string;
     scoreBoard: (score: number, mistakes: number) => string;
     selectedQuizSummary: (total: number, hira: number, kata: number) => string;
+    switchToLight: string;
+    switchToDark: string;
+    changeLanguage: string;
 }
 
 export const translations: Record<Language, TranslationDictionary> = {
@@ -52,7 +55,10 @@ export const translations: Record<Language, TranslationDictionary> = {
         incorrectWas: (correct) => `Incorrect! It was: ${correct}`,
         solutionIs: (solution) => `The solution is: ${solution}`,
         scoreBoard: (score, mistakes) => `Score: ${score} | Mistakes: ${mistakes}`,
-        selectedQuizSummary: (total, hira, kata) => `Selected: ${total} characters (${hira} Hiragana, ${kata} Katakana)`
+        selectedQuizSummary: (total, hira, kata) => `Selected: ${total} characters (${hira} Hiragana, ${kata} Katakana)`,
+        switchToLight: "Switch to Light Theme",
+        switchToDark: "Switch to Dark Theme",
+        changeLanguage: "Change Language"
     },
     it: {
         title: "sKANnA",
@@ -78,6 +84,9 @@ export const translations: Record<Language, TranslationDictionary> = {
         incorrectWas: (correct) => `Sbagliato! Era: ${correct}`,
         solutionIs: (solution) => `La soluzione è: ${solution}`,
         scoreBoard: (score, mistakes) => `Punteggio: ${score} | Errori: ${mistakes}`,
-        selectedQuizSummary: (total, hira, kata) => `Selezionati: ${total} caratteri (${hira} Hiragana, ${kata} Katakana)`
+        selectedQuizSummary: (total, hira, kata) => `Selezionati: ${total} caratteri (${hira} Hiragana, ${kata} Katakana)`,
+        switchToLight: "Attiva Tema Chiaro",
+        switchToDark: "Attiva Tema Scuro",
+        changeLanguage: "Cambia Lingua"
     }
 };

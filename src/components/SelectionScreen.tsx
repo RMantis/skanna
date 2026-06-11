@@ -224,31 +224,16 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz
                 {t.selectedSummary(counts.total, counts.hira, counts.kata)}
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
-                <button 
-                    type="button" 
-                    className="secondary" 
-                    style={{ padding: '6px 12px', fontSize: '0.85rem', color: 'var(--error-color)', border: '1px solid rgba(243, 139, 168, 0.3)' }} 
-                    onClick={() => {
-                        if (window.confirm(t.resetConfirm)) {
-                            storageService.clearStats();
-                            window.alert(t.resetSuccess);
-                            window.location.reload();
-                        }
-                    }}
-                >
-                    🔄 {t.resetStats}
-                </button>
-            </div>
+
 
             <div className="start-buttons-container" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', width: '100%' }}>
                 <div style={{ display: 'flex', gap: '15px' }}>
                     <button className="primary" style={{ flex: 1, padding: '12px' }} onClick={() => onStartQuiz('kana_to_romaji', selectedHira, selectedKata)}>{t.singleKanaRomaji}</button>
-                    <button className="primary" style={{ flex: 1, padding: '12px', backgroundColor: '#cba6f7', color: '#11111b' }} onClick={() => onStartQuiz('romaji_to_kana', selectedHira, selectedKata)}>{t.singleRomajiKana}</button>
+                    <button className="primary" style={{ flex: 1, padding: '12px', backgroundColor: 'var(--btn-single-rk-bg)', color: 'var(--btn-single-rk-text)' }} onClick={() => onStartQuiz('romaji_to_kana', selectedHira, selectedKata)}>{t.singleRomajiKana}</button>
                 </div>
                 <div style={{ display: 'flex', gap: '15px' }}>
-                    <button className="primary" style={{ flex: 1, padding: '12px', backgroundColor: '#a6e3a1', color: '#11111b' }} onClick={() => onStartQuiz('kana_to_romaji_phrases', selectedHira, selectedKata)}>{t.phrasesKanaRomaji}</button>
-                    <button className="primary" style={{ flex: 1, padding: '12px', backgroundColor: '#f9e2af', color: '#11111b' }} onClick={() => onStartQuiz('romaji_to_kana_phrases', selectedHira, selectedKata)}>{t.phrasesRomajiKana}</button>
+                    <button className="primary" style={{ flex: 1, padding: '12px', backgroundColor: 'var(--btn-phrase-kr-bg)', color: 'var(--btn-phrase-kr-text)' }} onClick={() => onStartQuiz('kana_to_romaji_phrases', selectedHira, selectedKata)}>{t.phrasesKanaRomaji}</button>
+                    <button className="primary" style={{ flex: 1, padding: '12px', backgroundColor: 'var(--btn-phrase-rk-bg)', color: 'var(--btn-phrase-rk-text)' }} onClick={() => onStartQuiz('romaji_to_kana_phrases', selectedHira, selectedKata)}>{t.phrasesRomajiKana}</button>
                 </div>
             </div>
         </div>
