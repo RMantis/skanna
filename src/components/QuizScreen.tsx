@@ -65,7 +65,8 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+        const isPhrasesMode = quizMode.endsWith('_phrases');
+        if (e.key === 'Enter' || (e.key === ' ' && !isPhrasesMode)) {
             e.preventDefault();
             onCheckAnswer(inputValue, selectedHira, selectedKata);
         } else if (e.key === 'Escape') {
