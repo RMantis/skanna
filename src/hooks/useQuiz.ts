@@ -40,11 +40,14 @@ export function useQuiz(lang: Language) {
         const stats = storageService.loadStats();
         const charStats = stats[char];
         if (!charStats) {
-            return 10;
+            return 10.0;
         }
         const correct = charStats.correct || 0;
         const wrong = charStats.wrong || 0;
-        return Math.max(1, 5 + wrong * 3 - correct);
+        // Auto-leveling: allow the weight to drop to 0.2 (from 1) for well-known characters
+        // so they appear less frequently, while poorly known characters (high wrong)
+        // are prioritized more.
+        return Math.max(0.2, 5.0 + wrong * 3.0 - correct * 0.8);
     }, []);
 
     const selectWeightedRandom = useCallback((pool: KanaItem[]) => {
