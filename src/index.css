@@ -306,7 +306,7 @@ table.kana-table td .romaji-text {
 
 .kana-display {
     font-size: 8rem;
-    margin: 0 0 20px 0;
+    margin: -10px 0 32px 0;
     font-weight: normal;
     line-height: 1;
 }
