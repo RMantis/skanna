@@ -15,6 +15,7 @@ export interface SavedSelection {
 const STATS_KEY = 'sKANnA_stats';
 const SELECTION_KEY = 'sKANnA_selection';
 const LANGUAGE_KEY = 'sKANnA_language';
+const LAST_MODE_KEY = 'sKANnA_last_mode';
 
 export const storageService = {
     loadLanguage(): Language {
@@ -94,6 +95,23 @@ export const storageService = {
             localStorage.setItem(SELECTION_KEY, JSON.stringify(selection));
         } catch (e) {
             console.error("Error saving selection:", e);
+        }
+    },
+
+    loadLastMode(): string | null {
+        try {
+            return localStorage.getItem(LAST_MODE_KEY);
+        } catch (e) {
+            console.error("Error loading last mode:", e);
+            return null;
+        }
+    },
+
+    saveLastMode(mode: string): void {
+        try {
+            localStorage.setItem(LAST_MODE_KEY, mode);
+        } catch (e) {
+            console.error("Error saving last mode:", e);
         }
     }
 };

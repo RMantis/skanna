@@ -12,6 +12,7 @@ interface SelectionScreenProps {
 export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz }) => {
     const [selectedHira, setSelectedHira] = useState<string[]>([]);
     const [selectedKata, setSelectedKata] = useState<string[]>([]);
+    const [lastMode, setLastMode] = useState<string | null>(null);
 
     useEffect(() => {
         const saved = storageService.loadSelection();
@@ -23,7 +24,23 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz
             setSelectedHira(defaultGroups);
             setSelectedKata(defaultGroups);
         }
+        setLastMode(storageService.loadLastMode());
     }, []);
+
+    const getFriendlyModeName = (mode: string) => {
+        switch (mode) {
+            case 'kana_to_romaji':
+                return `${t.single} (${t.kanaToRomaji})`;
+            case 'romaji_to_kana':
+                return `${t.single} (${t.romajiToKana})`;
+            case 'kana_to_romaji_phrases':
+                return `${t.phrases} (${t.kanaToRomaji})`;
+            case 'romaji_to_kana_phrases':
+                return `${t.phrases} (${t.romajiToKana})`;
+            default:
+                return mode;
+        }
+    };
 
     const updateSelection = (hira: string[], kata: string[]) => {
         setSelectedHira(hira);
@@ -84,9 +101,39 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz
 
     return (
         <div className="config-section">
-            <h3 style={{ margin: '0 0 5px 0', textAlign: 'center' }}>{t.chooseKana}</h3>
-            <div style={{ textAlign: 'center', fontSize: '0.85rem', color: 'var(--subtext)', marginBottom: '15px' }}>
-                {t.selectedSummary(counts.total)}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '0 0 4px 0', padding: '0 5px' }}>
+                <h3 style={{ margin: 0 }}>{t.chooseQuizMode}</h3>
+                {lastMode && (
+                    <span style={{ fontSize: '0.85rem', color: 'var(--subtext)' }}>
+                        {t.lastModeUsed}: <strong style={{ color: 'var(--primary-color)' }}>{getFriendlyModeName(lastMode)}</strong>
+                    </span>
+                )}
+            </div>
+            
+            <div className="start-modes-grid" style={{ marginBottom: '20px' }}>
+                <button type="button" className="mode-card single-kr" onClick={() => onStartQuiz('kana_to_romaji', selectedHira, selectedKata)}>
+                    <span className="mode-badge">{t.single}</span>
+                    <span className="mode-title">{t.kanaToRomaji}</span>
+                </button>
+                <button type="button" className="mode-card single-rk" onClick={() => onStartQuiz('romaji_to_kana', selectedHira, selectedKata)}>
+                    <span className="mode-badge">{t.single}</span>
+                    <span className="mode-title">{t.romajiToKana}</span>
+                </button>
+                <button type="button" className="mode-card phrase-kr" onClick={() => onStartQuiz('kana_to_romaji_phrases', selectedHira, selectedKata)}>
+                    <span className="mode-badge">{t.phrases}</span>
+                    <span className="mode-title">{t.kanaToRomaji}</span>
+                </button>
+                <button type="button" className="mode-card phrase-rk" onClick={() => onStartQuiz('romaji_to_kana_phrases', selectedHira, selectedKata)}>
+                    <span className="mode-badge">{t.phrases}</span>
+                    <span className="mode-title">{t.romajiToKana}</span>
+                </button>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '0 0 10px 0', padding: '0 5px' }}>
+                <h3 style={{ margin: 0 }}>{t.chooseKana}</h3>
+                <span style={{ fontSize: '0.85rem', color: 'var(--subtext)' }}>
+                    {t.selectedSummary(counts.total)}
+                </span>
             </div>
 
             <div className="tables-container">
@@ -223,24 +270,7 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz
                 </div>
             </div>
 
-            <div className="start-modes-grid">
-                <button type="button" className="mode-card single-kr" onClick={() => onStartQuiz('kana_to_romaji', selectedHira, selectedKata)}>
-                    <span className="mode-badge">{t.single}</span>
-                    <span className="mode-title">{t.kanaToRomaji}</span>
-                </button>
-                <button type="button" className="mode-card single-rk" onClick={() => onStartQuiz('romaji_to_kana', selectedHira, selectedKata)}>
-                    <span className="mode-badge">{t.single}</span>
-                    <span className="mode-title">{t.romajiToKana}</span>
-                </button>
-                <button type="button" className="mode-card phrase-kr" onClick={() => onStartQuiz('kana_to_romaji_phrases', selectedHira, selectedKata)}>
-                    <span className="mode-badge">{t.phrases}</span>
-                    <span className="mode-title">{t.kanaToRomaji}</span>
-                </button>
-                <button type="button" className="mode-card phrase-rk" onClick={() => onStartQuiz('romaji_to_kana_phrases', selectedHira, selectedKata)}>
-                    <span className="mode-badge">{t.phrases}</span>
-                    <span className="mode-title">{t.romajiToKana}</span>
-                </button>
-            </div>
+
         </div>
     );
 };

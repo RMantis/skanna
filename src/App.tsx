@@ -48,6 +48,7 @@ function App() {
   const handleStartQuiz = (mode: any, hira: string[], kata: string[]) => {
     setSelectedHira(hira);
     setSelectedKata(kata);
+    storageService.saveLastMode(mode);
     quiz.startQuiz(mode, hira, kata);
   };
 

@@ -3,6 +3,8 @@ export type Language = 'en' | 'it';
 export interface TranslationDictionary {
     title: string;
     chooseKana: string;
+    chooseQuizMode: string;
+    lastModeUsed: string;
     group: string;
     vowels: string;
     selectedSummary: (total: number) => string;
@@ -34,6 +36,8 @@ export const translations: Record<Language, TranslationDictionary> = {
     en: {
         title: "sKANnA",
         chooseKana: "Choose Kana for the Quiz",
+        chooseQuizMode: "Choose Quiz Mode",
+        lastModeUsed: "Last Mode Used",
         group: "Group",
         vowels: "Vowels",
         selectedSummary: (total) => `Selected: ${total} characters`,
@@ -63,6 +67,8 @@ export const translations: Record<Language, TranslationDictionary> = {
     it: {
         title: "sKANnA",
         chooseKana: "Scegli i Kana per il Quiz",
+        chooseQuizMode: "Scegli la Modalità del Quiz",
+        lastModeUsed: "Ultima modalità usata",
         group: "Gruppo",
         vowels: "Vocali",
         selectedSummary: (total) => `Selezionati: ${total} caratteri`,
