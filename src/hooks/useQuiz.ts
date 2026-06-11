@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { kanaData, KanaItem } from '../constants/kanaData';
 import { storageService } from '../services/storageService';
+import { Language, translations } from '../constants/translations';
 
 export type QuizMode = 'kana_to_romaji' | 'romaji_to_kana' | 'kana_to_romaji_phrases' | 'romaji_to_kana_phrases';
 
@@ -17,7 +18,7 @@ export interface QuizState {
     options: string[];
 }
 
-export function useQuiz() {
+export function useQuiz(lang: Language) {
     const [state, setState] = useState<QuizState>({
         quizActive: false,
         quizMode: 'kana_to_romaji',
@@ -210,20 +211,24 @@ export function useQuiz() {
     const startQuiz = useCallback((mode: QuizMode, selectedHira: string[], selectedKata: string[]) => {
         const pool: any[] = [];
         selectedHira.forEach(group => {
-            kanaData[group].h.forEach(item => {
-                const [kana, romaji] = item.split(':');
-                pool.push({ kana, romaji, type: 'Hiragana' });
-            });
+            if (kanaData[group]) {
+                kanaData[group].h.forEach(item => {
+                    const [kana, romaji] = item.split(':');
+                    pool.push({ kana, romaji, type: 'Hiragana' });
+                });
+            }
         });
         selectedKata.forEach(group => {
-            kanaData[group].k.forEach(item => {
-                const [kana, romaji] = item.split(':');
-                pool.push({ kana, romaji, type: 'Katakana' });
-            });
+            if (kanaData[group]) {
+                kanaData[group].k.forEach(item => {
+                    const [kana, romaji] = item.split(':');
+                    pool.push({ kana, romaji, type: 'Katakana' });
+                });
+            }
         });
 
         if (pool.length === 0) {
-            alert("Seleziona almeno un gruppo per iniziare!");
+            alert(translations[lang].selectGroupAlert);
             return;
         }
 
@@ -271,7 +276,7 @@ export function useQuiz() {
                 return {
                     ...prev,
                     questionAnswered: true,
-                    feedback: 'Corretto!',
+                    feedback: translations[lang].correct,
                     feedbackColor: 'var(--success-color)',
                     score: prev.score + 1
                 };
@@ -281,7 +286,7 @@ export function useQuiz() {
                 }
                 return {
                     ...prev,
-                    feedback: 'Sbagliato. Riprova!',
+                    feedback: translations[lang].incorrectTryAgain,
                     feedbackColor: 'var(--error-color)',
                     mistakes: prev.mistakes + 1
                 };
@@ -304,7 +309,7 @@ export function useQuiz() {
                 return {
                     ...prev,
                     optionSelected: true,
-                    feedback: 'Corretto!',
+                    feedback: translations[lang].correct,
                     feedbackColor: 'var(--success-color)',
                     score: prev.score + 1
                 };
@@ -316,7 +321,7 @@ export function useQuiz() {
                 return {
                     ...prev,
                     optionSelected: true,
-                    feedback: `Sbagliato! Era: ${prev.currentKana.kana}`,
+                    feedback: translations[lang].incorrectWas(prev.currentKana.kana),
                     feedbackColor: 'var(--error-color)',
                     mistakes: prev.mistakes + 1
                 };
@@ -337,7 +342,7 @@ export function useQuiz() {
 
             return {
                 ...prev,
-                feedback: `La soluzione è: ${solution}`,
+                feedback: translations[lang].solutionIs(solution),
                 feedbackColor: 'var(--warning-color)',
                 mistakes: prev.mistakes + 1
             };

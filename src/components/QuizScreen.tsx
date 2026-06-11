@@ -3,8 +3,10 @@ import { QuizState } from '../hooks/useQuiz';
 import { imeService } from '../services/imeService';
 import { storageService } from '../services/storageService';
 import { kanaData } from '../constants/kanaData';
+import { TranslationDictionary } from '../constants/translations';
 
 interface QuizScreenProps {
+    t: TranslationDictionary;
     quizState: QuizState;
     selectedHira: string[];
     selectedKata: string[];
@@ -15,6 +17,7 @@ interface QuizScreenProps {
 }
 
 export const QuizScreen: React.FC<QuizScreenProps> = ({
+    t,
     quizState,
     selectedHira,
     selectedKata,
@@ -109,8 +112,8 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
 
     const hint = isNew ? (
         quizMode === 'kana_to_romaji'
-            ? `💡 Nuovo kana! Romaji: ${currentKana.romaji}`
-            : `💡 Nuovo kana! Risposta: ${currentKana.kana}`
+            ? t.newKanaRomaji(currentKana.romaji)
+            : t.newKanaAnswer(currentKana.kana)
     ) : '';
 
     const isTypingMode = quizMode !== 'romaji_to_kana';
@@ -128,7 +131,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
     return (
         <div className="quiz-section" style={{ display: 'block' }}>
             <div className="top-bar">
-                <button className="btn-small" onClick={onStopQuiz}>← Cambia Filtri</button>
+                <button className="btn-small" onClick={onStopQuiz}>{t.changeFilters}</button>
                 <span id="alfabetoCorrente" style={{ color: 'var(--subtext)', fontSize: '0.9rem' }}>
                     {currentKana.type}
                 </span>
@@ -160,10 +163,10 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
 
                     <div className="controls" id="actionButtonsControls">
                         <button className="primary" onClick={() => onCheckAnswer(inputValue, selectedHira, selectedKata)}>
-                            Verifica
+                            {t.verify}
                         </button>
                         <button className="secondary" onClick={onShowSolution}>
-                            Non ricordo
+                            {t.dontRemember}
                         </button>
                     </div>
                 </>
@@ -200,11 +203,11 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
             </div>
 
             <div className="stats" id="stats">
-                Punteggio: {score} | Errori: {mistakes}
+                {t.scoreBoard(score, mistakes)}
             </div>
 
             <div id="quizSelectionSummary" style={{ fontSize: '0.8rem', color: 'var(--subtext)', marginTop: '10px', opacity: 0.75 }}>
-                Selezionati: {totalSelCount} caratteri ({hiraSelCount} Hiragana, {kataSelCount} Katakana)
+                {t.selectedQuizSummary(totalSelCount, hiraSelCount, kataSelCount)}
             </div>
         </div>
     );

@@ -2,12 +2,14 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { kanaData, getVowelIndex } from '../constants/kanaData';
 import { storageService } from '../services/storageService';
 import { QuizMode } from '../hooks/useQuiz';
+import { TranslationDictionary } from '../constants/translations';
 
 interface SelectionScreenProps {
+    t: TranslationDictionary;
     onStartQuiz: (mode: QuizMode, hira: string[], kata: string[]) => void;
 }
 
-export const SelectionScreen: React.FC<SelectionScreenProps> = ({ onStartQuiz }) => {
+export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz }) => {
     const [selectedHira, setSelectedHira] = useState<string[]>([]);
     const [selectedKata, setSelectedKata] = useState<string[]>([]);
 
@@ -17,7 +19,7 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ onStartQuiz })
             setSelectedHira(saved.hira);
             setSelectedKata(saved.kata);
         } else {
-            const defaultGroups = ['Vocali', 'K'];
+            const defaultGroups = ['Vowels', 'K'];
             setSelectedHira(defaultGroups);
             setSelectedKata(defaultGroups);
         }
@@ -82,7 +84,7 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ onStartQuiz })
 
     return (
         <div className="config-section">
-            <h3 style={{ marginBottom: '5px', textAlign: 'center' }}>Scegli i Kana per il Quiz</h3>
+            <h3 style={{ marginBottom: '5px', textAlign: 'center' }}>{t.chooseKana}</h3>
 
             <div className="tables-container">
                 {/* Tabella Hiragana */}
@@ -99,7 +101,7 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ onStartQuiz })
                                         onChange={(e) => toggleSelectAll('hira', e.target.checked)} 
                                     />
                                 </th>
-                                <th style={{ textAlign: 'left', paddingLeft: '8px' }}>Gruppo</th>
+                                <th style={{ textAlign: 'left', paddingLeft: '8px' }}>{t.group}</th>
                                 <th>A</th>
                                 <th>I</th>
                                 <th>U</th>
@@ -133,7 +135,7 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ onStartQuiz })
                                                 onChange={() => toggleRow('hira', group)} 
                                             />
                                         </td>
-                                        <td className="group-label">{group}</td>
+                                        <td className="group-label">{group === 'Vowels' ? t.vowels : group}</td>
                                         {cells.map((cell, idx) => (
                                             <td key={idx}>
                                                 {cell ? (
@@ -165,7 +167,7 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ onStartQuiz })
                                         onChange={(e) => toggleSelectAll('kata', e.target.checked)} 
                                     />
                                 </th>
-                                <th style={{ textAlign: 'left', paddingLeft: '8px' }}>Gruppo</th>
+                                <th style={{ textAlign: 'left', paddingLeft: '8px' }}>{t.group}</th>
                                 <th>A</th>
                                 <th>I</th>
                                 <th>U</th>
@@ -199,7 +201,7 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ onStartQuiz })
                                                 onChange={() => toggleRow('kata', group)} 
                                             />
                                         </td>
-                                        <td className="group-label">{group}</td>
+                                        <td className="group-label">{group === 'Vowels' ? t.vowels : group}</td>
                                         {cells.map((cell, idx) => (
                                             <td key={idx}>
                                                 {cell ? (
@@ -219,7 +221,7 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ onStartQuiz })
             </div>
 
             <div id="tableSelectionSummary" style={{ textAlign: 'center', margin: '5px 0 15px 0', fontSize: '1.05rem', color: 'var(--text-color)', fontWeight: 600, letterSpacing: '0.5px' }}>
-                Selezionati: {counts.total} caratteri ({counts.hira} Hiragana, {counts.kata} Katakana)
+                {t.selectedSummary(counts.total, counts.hira, counts.kata)}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
@@ -228,25 +230,25 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ onStartQuiz })
                     className="secondary" 
                     style={{ padding: '6px 12px', fontSize: '0.85rem', color: 'var(--error-color)', border: '1px solid rgba(243, 139, 168, 0.3)' }} 
                     onClick={() => {
-                        if (window.confirm("Sei sicuro di voler resettare tutte le statistiche di studio? I progressi andranno persi.")) {
+                        if (window.confirm(t.resetConfirm)) {
                             storageService.clearStats();
-                            window.alert("Statistiche resettate con successo!");
+                            window.alert(t.resetSuccess);
                             window.location.reload();
                         }
                     }}
                 >
-                    🔄 Resetta Statistiche
+                    🔄 {t.resetStats}
                 </button>
             </div>
 
             <div className="start-buttons-container" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', width: '100%' }}>
                 <div style={{ display: 'flex', gap: '15px' }}>
-                    <button className="primary" style={{ flex: 1, padding: '12px' }} onClick={() => onStartQuiz('kana_to_romaji', selectedHira, selectedKata)}>Singoli: Kana → Romaji</button>
-                    <button className="primary" style={{ flex: 1, padding: '12px', backgroundColor: '#cba6f7', color: '#11111b' }} onClick={() => onStartQuiz('romaji_to_kana', selectedHira, selectedKata)}>Singoli: Romaji → Kana</button>
+                    <button className="primary" style={{ flex: 1, padding: '12px' }} onClick={() => onStartQuiz('kana_to_romaji', selectedHira, selectedKata)}>{t.singleKanaRomaji}</button>
+                    <button className="primary" style={{ flex: 1, padding: '12px', backgroundColor: '#cba6f7', color: '#11111b' }} onClick={() => onStartQuiz('romaji_to_kana', selectedHira, selectedKata)}>{t.singleRomajiKana}</button>
                 </div>
                 <div style={{ display: 'flex', gap: '15px' }}>
-                    <button className="primary" style={{ flex: 1, padding: '12px', backgroundColor: '#a6e3a1', color: '#11111b' }} onClick={() => onStartQuiz('kana_to_romaji_phrases', selectedHira, selectedKata)}>Frasi: Kana → Romaji</button>
-                    <button className="primary" style={{ flex: 1, padding: '12px', backgroundColor: '#f9e2af', color: '#11111b' }} onClick={() => onStartQuiz('romaji_to_kana_phrases', selectedHira, selectedKata)}>Frasi: Romaji → Kana</button>
+                    <button className="primary" style={{ flex: 1, padding: '12px', backgroundColor: '#a6e3a1', color: '#11111b' }} onClick={() => onStartQuiz('kana_to_romaji_phrases', selectedHira, selectedKata)}>{t.phrasesKanaRomaji}</button>
+                    <button className="primary" style={{ flex: 1, padding: '12px', backgroundColor: '#f9e2af', color: '#11111b' }} onClick={() => onStartQuiz('romaji_to_kana_phrases', selectedHira, selectedKata)}>{t.phrasesRomajiKana}</button>
                 </div>
             </div>
         </div>

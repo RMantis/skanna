@@ -25,6 +25,7 @@ body {
 h1 { color: var(--primary-color); }
 
 .container {
+    position: relative;
     background-color: var(--surface-color);
     padding: 30px;
     border-radius: 12px;
@@ -328,4 +329,33 @@ button:hover { opacity: 0.8; }
     color: var(--subtext);
     border-top: 1px solid var(--surface-hover);
     padding-top: 15px;
+}
+
+/* Language Switcher Dropdown Style */
+.language-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background-color: var(--surface-hover);
+    padding: 4px 8px;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.language-selector select {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 0.85rem;
+    cursor: pointer;
+    outline: none;
+    font-weight: 600;
+}
+
+.language-selector select option {
+    background-color: var(--surface-color);
+    color: var(--text-color);
 }

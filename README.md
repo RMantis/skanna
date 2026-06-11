@@ -1,56 +1,57 @@
 # sKANnA (KANA school)
 
-Un'applicazione web moderna, reattiva e dal design accattivante per imparare gli alfabeti giapponesi **Hiragana** e **Katakana** attraverso quiz intelligenti, ripetizione spaziata e scorciatoie da tastiera.
+A modern, responsive, and visually appealing web application to learn Japanese **Hiragana** and **Katakana** alphabets through smart quizzes, spaced repetition, and keyboard shortcuts.
 
-## 🚀 Funzionalità Principali
+## 🚀 Key Features
 
-### 📊 Selezione Dinamica dei Caratteri
-- **Tabelle affiancate**: Selezione intuitiva tramite righe selezionabili per Hiragana e Katakana con i romaji corrispondenti mostrati sotto ogni carattere.
-- **Seleziona Tutto**: Checkbox dedicate nelle intestazioni di ciascuna tabella per selezionare o deselezionare istantaneamente l'intero alfabeto Hiragana o Katakana.
-- **Persistenza della Selezione**: La configurazione dei gruppi selezionati viene salvata automaticamente in tempo reale nel browser (`localStorage`) e ripristinata fedelmente ad ogni ricarica della pagina.
-- **Conteggio in Tempo Reale**: Il numero totale di caratteri selezionati e la suddivisione (es. `Selezionati: 10 caratteri (5 Hiragana, 5 Katakana)`) viene mostrato:
-  - In evidenza al fondo delle tabelle di selezione.
-  - In piccolo alla base della scheda durante lo svolgimento del quiz.
+### 📊 Dynamic Character Selection
+- **Side-by-Side Tables**: Intuitive selection using checkable rows for Hiragana and Katakana, showing corresponding romaji under each character.
+- **Select All Toggles**: Dedicated checkboxes in headers to instantly select or deselect the entire Hiragana or Katakana alphabet.
+- **Selection Persistence**: Group configurations are automatically saved in real-time in the browser (`localStorage`) and restored on page reload.
+- **Real-Time Counts**: The total count and group split of selected characters (e.g., `Selected: 10 characters (5 Hiragana, 5 Katakana)`) are displayed:
+  - Prominently at the bottom of the selection tables.
+  - Discreetly at the bottom of the card during a quiz.
 
-### 🧠 Algoritmo di Apprendimento Intelligente (Spaced Repetition)
-- **Frequenza di Errore**: L'app tiene traccia delle risposte corrette ed errate per ciascun carattere, salvandole in modo persistente in `localStorage`.
-- **Estrazione Pesata**: Vengono proposti più frequentemente i caratteri nuovi (mai visti) o quelli che l'utente sbaglia più spesso, riducendo progressivamente la frequenza per i caratteri già assimilati.
-- **Nessuna Ripetizione Consecutiva**: L'algoritmo garantisce che non venga mai proposto lo stesso carattere o lo stesso suono (romaji) per due turni di fila per evitare monotonia e risposte automatiche.
-
----
-
-## 🎮 Modalità di Quiz
-
-L'avvio del quiz avviene direttamente selezionando una delle quattro modalità disponibili al fondo della pagina di configurazione:
-
-1. **Singoli: Kana → Romaji**
-   - Viene mostrato un singolo carattere Kana (Hiragana o Katakana).
-   - L'utente inserisce la traslitterazione in Romaji nell'input di testo.
-2. **Singoli: Romaji → Kana**
-   - Viene mostrato un suono in Romaji.
-   - Quiz a scelta multipla con griglia 2x2 contenente 4 opzioni in Kana.
-3. **Frasi: Kana → Romaji**
-   - Genera sequenze/parole casuali da 2 a 5 caratteri composte interamente dallo script selezionato.
-   - L'utente digita la corrispondente stringa in Romaji.
-4. **Frasi: Romaji → Kana (con convertitore IME integrato)**
-   - Genera sequenze casuali in Romaji.
-   - L'utente risponde inserendo i caratteri Kana.
-   - **Conversione in tempo reale**: L'input di testo converte automaticamente e all'istante i tasti premuti in romaji nel corrispondente carattere Kana (es. digitando `k` `a` `k` `i` l'input mostrerà visivamente `かき`).
+### 🧠 Intelligent Learning Algorithm (Spaced Repetition)
+- **Performance Tracking**: The app tracks correct and wrong answers for each character, persisting statistics in the browser's `localStorage`.
+- **Weighted Selection**: Automatically prioritizes new (unseen) characters and frequently-missed ones, gradually reducing the selection frequency for mastered characters.
+- **Gradual Introduction**: Restricts new (unseen) characters to at most 3 active ones in the pool at any given time, preventing the user from being overwhelmed by too many new characters at once.
+- **History Exclusion Buffer**: Avoids immediate or close repetitions of recently shown characters using an active history exclusion window (no consecutive or alternate repeats like `A -> B -> A -> C -> A`).
 
 ---
 
-## ⌨️ Scorciatoie da Tastiera (Shortcut)
+## 🎮 Quiz Modes
 
-Per rendere lo studio rapido ed efficiente, l'applicazione integra comandi rapidi da tastiera:
+Directly start a quiz session by selecting one of the four modes at the bottom of the selection page:
 
-- **Spazio / Invio**: Invia e verifica la risposta nelle modalità di scrittura (evita di dover cliccare su "Verifica").
-- **Escape (ESC)**: Equivale a "Non ricordo" — mostra la soluzione corretta evidenziandola in giallo e mette a fuoco l'input di testo per costringere a scriverla per memorizzazione.
-- **Tasti 1, 2, 3, 4**: Nelle modalità a scelta multipla (Romaji → Kana), consentono di selezionare istantaneamente una delle quattro opzioni sulla griglia senza usare il mouse.
+1. **Single: Kana → Romaji**
+   - Shows a single Kana character (Hiragana or Katakana).
+   - User types the corresponding Romaji transliteration.
+2. **Single: Romaji → Kana**
+   - Shows a Romaji sound.
+   - Multiple-choice grid containing 4 options in Kana.
+3. **Phrases: Kana → Romaji**
+   - Generates random sequences/words of 2 to 5 characters from your selection.
+   - User types the corresponding Romaji string.
+4. **Phrases: Romaji → Kana (with built-in IME converter)**
+   - Generates random Romaji sequences.
+   - User types answers using Kana characters.
+   - **Real-time Conversion**: Automatically converts typed keys to Kana in the input box on the fly (e.g., typing `k` `a` `k` `i` converts directly to `かき`).
 
 ---
 
-## 🎨 Design & Estetica
-L'applicazione è progettata seguendo una palette di colori moderna ed elegante (ispirata al tema scuro Catppuccin):
-- **Hiragana**: Accenti e selezioni nei toni del rosa/pastello.
-- **Katakana**: Accenti e selezioni nei toni dell'azzurro/pastello.
-- **Feedback visivo**: Segnalazione immediata delle risposte con colorazioni soft e intuitive (verde per le risposte corrette, rosso per gli errori).
+## ⌨️ Keyboard Shortcuts
+
+Speed up your training sessions with built-in hotkeys:
+
+- **Space / Enter**: Submits and verifies inputs in typing modes (no mouse click needed).
+- **Escape (ESC)**: Acts as "Don't remember" — shows the correct solution in yellow and focuses the input field for mandatory typing to reinforce memorization.
+- **Keys 1, 2, 3, 4**: Instantly selects options in multiple-choice mode (Romaji → Kana) without using the mouse.
+
+---
+
+## 🎨 Design & Theme
+Designed with a sleek and modern look inspired by the dark **Catppuccin** palette:
+- **Hiragana**: Accents and highlighted rows in soft pastel pink/flamingo.
+- **Katakana**: Accents and highlighted rows in soft pastel blue/sky.
+- **Visual Feedback**: Clean and soft green highlight for correct answers, and soft red highlight for incorrect attempts.

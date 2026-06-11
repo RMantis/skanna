@@ -12,7 +12,7 @@ export interface KanaGroup {
 export type KanaDataMap = Record<string, KanaGroup>;
 
 export const kanaData: KanaDataMap = {
-    "Vocali": { h: ['あ:a','い:i','う:u','え:e','お:o'], k: ['ア:a','イ:i','ウ:u','エ:e','オ:o'] },
+    "Vowels": { h: ['あ:a','い:i','う:u','え:e','お:o'], k: ['ア:a','イ:i','ウ:u','エ:e','オ:o'] },
     "K": { h: ['か:ka','き:ki','く:ku','け:ke','こ:ko'], k: ['カ:ka','キ:ki','ク:ku','ケ:ke','コ:ko'] },
     "S": { h: ['さ:sa','し:shi','す:su','せ:se','そ:so'], k: ['サ:sa','シ:shi','ス:su','セ:se','ソ:so'] },
     "T": { h: ['た:ta','ち:chi','つ:tsu','て:te','と:to'], k: ['タ:ta','チ:chi','ツ:tsu','テ:te','ト:to'] },
