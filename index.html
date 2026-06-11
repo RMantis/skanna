@@ -387,9 +387,15 @@
 
             <div id="tableSelectionSummary" style="text-align: center; margin: 5px 0 15px 0; font-size: 1.05rem; color: var(--text-color); font-weight: 600; letter-spacing: 0.5px;"></div>
 
-            <div class="start-buttons-container" style="display: flex; gap: 15px; margin-top: 10px; width: 100%;">
-                <button class="primary" style="flex: 1; padding: 12px;" onclick="selectModeAndStart('kana_to_romaji')">Inizia: Kana → Romaji</button>
-                <button class="primary" style="flex: 1; padding: 12px; background-color: #cba6f7; color: #11111b;" onclick="selectModeAndStart('romaji_to_kana')">Inizia: Romaji → Kana</button>
+            <div class="start-buttons-container" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px; width: 100%;">
+                <div style="display: flex; gap: 15px;">
+                    <button class="primary" style="flex: 1; padding: 12px;" onclick="selectModeAndStart('kana_to_romaji')">Singoli: Kana → Romaji</button>
+                    <button class="primary" style="flex: 1; padding: 12px; background-color: #cba6f7; color: #11111b;" onclick="selectModeAndStart('romaji_to_kana')">Singoli: Romaji → Kana</button>
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <button class="primary" style="flex: 1; padding: 12px; background-color: #a6e3a1; color: #11111b;" onclick="selectModeAndStart('kana_to_romaji_phrases')">Frasi: Kana → Romaji</button>
+                    <button class="primary" style="flex: 1; padding: 12px; background-color: #f9e2af; color: #11111b;" onclick="selectModeAndStart('romaji_to_kana_phrases')">Frasi: Romaji → Kana</button>
+                </div>
             </div>
         </div>
 
@@ -433,6 +439,34 @@
             "R": { h: ['ら:ra','り:ri','る:ru','れ:re','ろ:ro'], k: ['ラ:ra','リ:ri','ル:ru','レ:re','ロ:ro'] },
             "W / N": { h: ['わ:wa','を:wo','ん:n'], k: ['ワ:wa','ヲ:wo','ン:n'] }
         };
+
+        const hiraRomajiMap = {};
+        const kataRomajiMap = {};
+
+        function convertRomajiToKana(text, scriptType) {
+            let result = '';
+            let i = 0;
+            const map = scriptType === 'Hiragana' ? hiraRomajiMap : kataRomajiMap;
+            
+            const keys = Object.keys(map).sort((a, b) => b.length - a.length);
+            
+            while (i < text.length) {
+                let matched = false;
+                for (const romaji of keys) {
+                    if (text.substr(i, romaji.length).toLowerCase() === romaji) {
+                        result += map[romaji];
+                        i += romaji.length;
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) {
+                    result += text[i];
+                    i++;
+                }
+            }
+            return result;
+        }
 
         let activePool = [];
         let currentKana = null;
@@ -604,6 +638,18 @@
             const hiraTableBody = document.getElementById('hiraTableBody');
             const kataTableBody = document.getElementById('kataTableBody');
             
+            // Popola le mappe romaji -> kana per la conversione automatica e per le frasi
+            Object.keys(kanaData).forEach(group => {
+                kanaData[group].h.forEach(item => {
+                    const [kana, romaji] = item.split(':');
+                    hiraRomajiMap[romaji] = kana;
+                });
+                kanaData[group].k.forEach(item => {
+                    const [kana, romaji] = item.split(':');
+                    kataRomajiMap[romaji] = kana;
+                });
+            });
+
             // Carica la selezione salvata, se presente
             let savedSelection = null;
             try {
@@ -690,6 +736,18 @@
                 }
             });
 
+            // Convertitore automatico da romaji a kana in tempo reale per romaji_to_kana_phrases
+            answerInput.addEventListener('input', function() {
+                if (quizMode === 'romaji_to_kana_phrases' && currentKana) {
+                    const oldVal = this.value;
+                    const newVal = convertRomajiToKana(oldVal, currentKana.type);
+                    if (oldVal !== newVal) {
+                        this.value = newVal;
+                        this.setSelectionRange(newVal.length, newVal.length);
+                    }
+                }
+            });
+
             // Keydown listener globale per tastiera 1,2,3,4 e Escape
             window.addEventListener('keydown', function (e) {
                 const quizSection = document.getElementById('quizSection');
@@ -702,7 +760,7 @@
                                 buttons[idx].click();
                             }
                         }
-                    } else if (quizMode === 'kana_to_romaji') {
+                    } else if (quizMode === 'kana_to_romaji' || quizMode.endsWith('_phrases')) {
                         if (e.key === 'Escape') {
                             showSolution();
                         }
@@ -825,44 +883,117 @@
             }
         }
 
-        function nextQuestion() {
-            // Seleziona la domanda in base al peso (algoritmo di spaced repetition)
-            // Evita ripetizioni consecutive se la pool ha più di un elemento
-            let pool = activePool;
-            if (activePool.length > 1 && currentKana) {
-                // Prova a filtrare per evitare lo stesso romaji (suono) o lo stesso kana
-                const filteredByRomaji = activePool.filter(item => item.romaji !== currentKana.romaji);
-                if (filteredByRomaji.length > 0) {
-                    pool = filteredByRomaji;
-                } else {
-                    pool = activePool.filter(item => item.kana !== currentKana.kana);
-                }
-            }
-            currentKana = selectWeightedRandom(pool);
+        function generatePhrase(scriptType) {
+            const hiraSelected = Array.from(document.querySelectorAll('.hira-row-cb:checked')).map(cb => cb.value);
+            const kataSelected = Array.from(document.querySelectorAll('.kata-row-cb:checked')).map(cb => cb.value);
             
-            // Gestione Suggerimento Prima Volta (usando kanaStats persistenti)
-            const hintElement = document.getElementById('firstTimeHint');
-            const isNew = !kanaStats[currentKana.kana] || 
-                          (((kanaStats[currentKana.kana].correct || 0) === 0) && ((kanaStats[currentKana.kana].wrong || 0) === 0));
-            if (isNew) {
-                if (quizMode === 'kana_to_romaji') {
-                    hintElement.innerText = `💡 Nuovo kana! Romaji: ${currentKana.romaji}`;
-                } else {
-                    hintElement.innerText = `💡 Nuovo kana! Risposta: ${currentKana.kana}`;
-                }
+            let pool = [];
+            if (scriptType === 'Hiragana') {
+                hiraSelected.forEach(group => {
+                    kanaData[group].h.forEach(item => {
+                        const [kana, romaji] = item.split(':');
+                        pool.push({ kana, romaji });
+                    });
+                });
             } else {
-                hintElement.innerText = ''; // Pulisce il suggerimento se l'ha già visto
+                kataSelected.forEach(group => {
+                    kanaData[group].k.forEach(item => {
+                        const [kana, romaji] = item.split(':');
+                        pool.push({ kana, romaji });
+                    });
+                });
             }
+            
+            if (pool.length === 0) return null;
+            
+            // Lunghezza casuale da 2 a 5 caratteri
+            const len = Math.floor(Math.random() * 4) + 2;
+            let kanaStr = '';
+            let romajiStr = '';
+            
+            for (let i = 0; i < len; i++) {
+                const char = pool[Math.floor(Math.random() * pool.length)];
+                kanaStr += char.kana;
+                romajiStr += char.romaji;
+            }
+            
+            return {
+                kana: kanaStr,
+                romaji: romajiStr,
+                type: scriptType
+            };
+        }
 
+        function nextQuestion() {
             optionSelected = false;
             questionAnswered = false;
 
-            if (quizMode === 'kana_to_romaji') {
+            const isPhrasesMode = quizMode.endsWith('_phrases');
+
+            if (isPhrasesMode) {
+                const hiraSelected = Array.from(document.querySelectorAll('.hira-row-cb:checked'));
+                const kataSelected = Array.from(document.querySelectorAll('.kata-row-cb:checked'));
+                
+                const scripts = [];
+                if (hiraSelected.length > 0) scripts.push('Hiragana');
+                if (kataSelected.length > 0) scripts.push('Katakana');
+                
+                if (scripts.length === 0) {
+                    alert("Seleziona almeno un gruppo!");
+                    stopQuiz();
+                    return;
+                }
+                
+                const scriptType = scripts[Math.floor(Math.random() * scripts.length)];
+                
+                // Evita ripetizioni consecutive della stessa frase
+                let phrase = generatePhrase(scriptType);
+                if (currentKana && phrase && phrase.kana === currentKana.kana) {
+                    phrase = generatePhrase(scriptType) || phrase;
+                }
+                currentKana = phrase;
+                
+                document.getElementById('firstTimeHint').innerText = '';
+            } else {
+                let pool = activePool;
+                if (activePool.length > 1 && currentKana) {
+                    const filteredByRomaji = activePool.filter(item => item.romaji !== currentKana.romaji);
+                    if (filteredByRomaji.length > 0) {
+                        pool = filteredByRomaji;
+                    } else {
+                        pool = activePool.filter(item => item.kana !== currentKana.kana);
+                    }
+                }
+                currentKana = selectWeightedRandom(pool);
+                
+                const hintElement = document.getElementById('firstTimeHint');
+                const isNew = !kanaStats[currentKana.kana] || 
+                              (((kanaStats[currentKana.kana].correct || 0) === 0) && ((kanaStats[currentKana.kana].wrong || 0) === 0));
+                if (isNew) {
+                    if (quizMode === 'kana_to_romaji') {
+                        hintElement.innerText = `💡 Nuovo kana! Romaji: ${currentKana.romaji}`;
+                    } else {
+                        hintElement.innerText = `💡 Nuovo kana! Risposta: ${currentKana.kana}`;
+                    }
+                } else {
+                    hintElement.innerText = '';
+                }
+            }
+
+            if (quizMode === 'kana_to_romaji' || quizMode === 'kana_to_romaji_phrases') {
                 document.getElementById('textInputControls').style.display = 'flex';
                 document.getElementById('actionButtonsControls').style.display = 'flex';
                 document.getElementById('optionsGrid').style.display = 'none';
 
                 document.getElementById('kanaDisplay').innerText = currentKana.kana;
+                document.getElementById('answerInput').value = '';
+                document.getElementById('answerInput').focus();
+            } else if (quizMode === 'romaji_to_kana_phrases') {
+                document.getElementById('textInputControls').style.display = 'flex';
+                document.getElementById('actionButtonsControls').style.display = 'flex';
+                document.getElementById('optionsGrid').style.display = 'none';
+
+                document.getElementById('kanaDisplay').innerText = currentKana.romaji;
                 document.getElementById('answerInput').value = '';
                 document.getElementById('answerInput').focus();
             } else {
@@ -905,12 +1036,18 @@
             // Se l'input è vuoto, non fare nulla (evita errori accidentali)
             if (userAnswer === "") return; 
 
-            if (userAnswer === currentKana.romaji) {
+            // Determina la risposta corretta in base alla modalità
+            const isRomajiToKanaPhrases = (quizMode === 'romaji_to_kana_phrases');
+            const correctAnswer = isRomajiToKanaPhrases ? currentKana.kana : currentKana.romaji;
+
+            if (userAnswer === correctAnswer) {
                 questionAnswered = true; // Impedisce invii multipli consecutivi durante il timeout
                 feedbackElement.innerText = "Corretto!";
                 feedbackElement.style.color = "var(--success-color)";
                 score++;
-                recordResult(currentKana.kana, true);
+                if (!quizMode.endsWith('_phrases')) {
+                    recordResult(currentKana.kana, true);
+                }
                 updateStats();
                 setTimeout(() => {
                     feedbackElement.innerText = '';
@@ -920,7 +1057,9 @@
                 feedbackElement.innerText = `Sbagliato. Riprova!`;
                 feedbackElement.style.color = "var(--error-color)";
                 mistakes++;
-                recordResult(currentKana.kana, false);
+                if (!quizMode.endsWith('_phrases')) {
+                    recordResult(currentKana.kana, false);
+                }
                 updateStats();
                 inputElement.value = '';
                 inputElement.focus();
@@ -932,22 +1071,20 @@
             const feedbackElement = document.getElementById('feedback');
             const inputElement = document.getElementById('answerInput');
             
-            if (quizMode === 'kana_to_romaji') {
-                feedbackElement.innerText = `La soluzione è: ${currentKana.romaji}`;
-            } else {
-                feedbackElement.innerText = `La soluzione è: ${currentKana.kana}`;
-            }
+            const isRomajiToKanaPhrases = (quizMode === 'romaji_to_kana_phrases');
+            const solution = isRomajiToKanaPhrases ? currentKana.kana : currentKana.romaji;
+            
+            feedbackElement.innerText = `La soluzione è: ${solution}`;
             feedbackElement.style.color = "var(--warning-color)";
             
             mistakes++;
-            recordResult(currentKana.kana, false);
+            if (!quizMode.endsWith('_phrases')) {
+                recordResult(currentKana.kana, false);
+            }
             updateStats();
             
-            if (quizMode === 'kana_to_romaji') {
-                // Focus sull'input per costringere a scriverlo
-                inputElement.value = '';
-                inputElement.focus();
-            }
+            inputElement.value = '';
+            inputElement.focus();
         }
 
         function updateStats() {
