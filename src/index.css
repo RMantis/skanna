@@ -776,20 +776,14 @@ button.secondary:hover {
     margin-top: auto;
     padding-top: 20px;
     margin-bottom: 10px;
-    font-size: 0.82rem;
+    font-size: 0.88rem;
     color: var(--subtext);
     text-align: center;
-    opacity: 0.65;
-    transition: opacity 0.2s ease;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
     row-gap: 6px;
-}
-
-.footer:hover {
-    opacity: 1;
 }
 
 .footer-group {
@@ -798,15 +792,34 @@ button.secondary:hover {
     white-space: nowrap;
 }
 
+/* Opacity overrides: keep KANA characters at full opacity (1) by default while dimming the rest */
+.footer-group:not(.brand-text),
+.footer-version,
+.brand-muted,
+.footer-group:not(:last-child)::after,
+.credit-divider,
+.footer a {
+    opacity: 0.65;
+    transition: opacity 0.2s ease;
+}
+
+/* Reveal full opacity for all elements on hover */
+.footer:hover .footer-group:not(.brand-text),
+.footer:hover .footer-version,
+.footer:hover .brand-muted,
+.footer:hover .footer-group:not(:last-child)::after,
+.footer:hover .credit-divider,
+.footer:hover .footer a {
+    opacity: 1;
+}
+
 .footer-group:not(:last-child)::after {
     content: "•";
     margin: 0 10px;
-    opacity: 0.5;
 }
 
 .credit-divider {
     margin: 0 10px;
-    opacity: 0.5;
     display: inline-block;
 }
 
@@ -1003,7 +1016,7 @@ button.secondary:hover {
 
 /* Brand text styling (sKANnA) */
 .brand-highlight {
-    background: linear-gradient(135deg, #d32f2f, #ec407a);
+    background: linear-gradient(135deg, #e64a19, #ec407a);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     display: inline-block;
@@ -1160,11 +1173,7 @@ html[data-theme='light'] .brand-muted {
     .footer {
         padding-top: 10px;
         margin-bottom: 8px;
-        font-size: 0.74rem;
-    }
-
-    .footer-group:nth-child(2) {
-        display: none;
+        font-size: 0.8rem;
     }
 
     .hero-desc {
