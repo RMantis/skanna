@@ -163,6 +163,7 @@ export function useQuiz(lang: Language) {
             const chosen = filteredCandidates[Math.floor(Math.random() * filteredCandidates.length)];
             return {
                 kana: chosen.kana,
+                kanji: chosen.kanji,
                 romaji: chosen.romaji,
                 translation: chosen.translation,
                 partOfSpeech: chosen.partOfSpeech,
