@@ -357,17 +357,19 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
 
             <div className={`kana-display ${fontClass}`} id="kanaDisplay">
                 {quizMode === 'kana_to_romaji' || quizMode === 'kana_to_romaji_words'
-                    ? currentKana.kana
+                    ? (
+                        <>
+                            {currentKana.kana}
+                            {quizMode.endsWith('_words') && 'kanji' in currentKana && (currentKana as any).kanji && (
+                                <span className="display-kanji"> ({(currentKana as any).kanji})</span>
+                            )}
+                        </>
+                    )
                     : currentKana.romaji}
             </div>
 
             {quizMode.endsWith('_words') && currentKana && 'translation' in currentKana && (
                 <div className="word-translation">
-                    {('kanji' in currentKana) && (currentKana as any).kanji && (
-                        <span style={{ opacity: 0.85, fontSize: '0.9em', marginLeft: '10px' }}>
-                            <strong style={{ color: 'var(--primary-color)' }}>{(currentKana as any).kanji} &nbsp;</strong>
-                        </span>
-                    )}
                     {currentKana.translation[lang]}
                     {('partOfSpeech' in currentKana) && (
                         <span style={{ opacity: 0.7, fontSize: '0.9em' }}> ({getPosLabel((currentKana as any).partOfSpeech)})</span>
