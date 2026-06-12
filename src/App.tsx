@@ -4,6 +4,7 @@ import { SelectionScreen } from './components/SelectionScreen';
 import { QuizScreen } from './components/QuizScreen';
 import { Language, translations } from './constants/translations';
 import { storageService, JapaneseFont } from './services/storageService';
+import packageJson from '../package.json';
 
 function App() {
   const [lang, setLang] = useState<Language>(storageService.loadLanguage());
@@ -195,6 +196,9 @@ function App() {
           />
         )}
       </div>
+      <footer className="footer">
+        sKANnA - KANA school v{packageJson.version} - by Alessandro Rossini &bull; <a href="https://github.com/RMantis/skanna" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </footer>
     </>
   );
 }
