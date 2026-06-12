@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useQuiz } from './hooks/useQuiz';
 import { SelectionScreen } from './components/SelectionScreen';
 import { QuizScreen } from './components/QuizScreen';
+import { BlobBackground } from './components/BlobBackground';
 import { Language, translations } from './constants/translations';
 import { storageService, JapaneseFont } from './services/storageService';
 import packageJson from '../package.json';
@@ -31,6 +32,8 @@ function App() {
   // Apply theme to document element
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    const themeColor = theme === 'dark' ? '#0f0f15' : '#edf0f5';
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColor);
     try {
       localStorage.setItem('sKANnA_theme', theme);
     } catch (e) {
@@ -87,6 +90,7 @@ function App() {
 
   return (
     <>
+      <BlobBackground />
       <header className="header-bar">
         <div className="logo-container" onClick={() => { if (quiz.quizActive) quiz.stopQuiz(); }} title="Home / Reset Filters">
           <img src={appIcon} alt="sKANnA Logo" className="logo-img" />
