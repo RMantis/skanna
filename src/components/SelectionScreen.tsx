@@ -33,10 +33,10 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz
                 return `${t.single} (${t.kanaToRomaji})`;
             case 'romaji_to_kana':
                 return `${t.single} (${t.romajiToKana})`;
-            case 'kana_to_romaji_phrases':
-                return `${t.phrases} (${t.kanaToRomaji})`;
-            case 'romaji_to_kana_phrases':
-                return `${t.phrases} (${t.romajiToKana})`;
+            case 'kana_to_romaji_words':
+                return `${t.words} (${t.kanaToRomaji})`;
+            case 'romaji_to_kana_words':
+                return `${t.words} (${t.romajiToKana})`;
             default:
                 return mode;
         }
@@ -132,12 +132,12 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz
                     <span className="mode-badge">{t.single}</span>
                     <span className="mode-title">{t.romajiToKana}</span>
                 </button>
-                <button type="button" className="mode-card phrase-kr" onClick={() => onStartQuiz('kana_to_romaji_phrases', selectedHira, selectedKata)}>
-                    <span className="mode-badge">{t.phrases}</span>
+                <button type="button" className="mode-card word-kr" onClick={() => onStartQuiz('kana_to_romaji_words', selectedHira, selectedKata)}>
+                    <span className="mode-badge">{t.words}</span>
                     <span className="mode-title">{t.kanaToRomaji}</span>
                 </button>
-                <button type="button" className="mode-card phrase-rk" onClick={() => onStartQuiz('romaji_to_kana_phrases', selectedHira, selectedKata)}>
-                    <span className="mode-badge">{t.phrases}</span>
+                <button type="button" className="mode-card word-rk" onClick={() => onStartQuiz('romaji_to_kana_words', selectedHira, selectedKata)}>
+                    <span className="mode-badge">{t.words}</span>
                     <span className="mode-title">{t.romajiToKana}</span>
                 </button>
             </div>

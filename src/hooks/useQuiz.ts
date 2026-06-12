@@ -2,13 +2,14 @@ import { useState, useCallback, useRef } from 'react';
 import { kanaData, KanaItem } from '../constants/kanaData';
 import { storageService } from '../services/storageService';
 import { Language, translations } from '../constants/translations';
+import { wordlist, WordItem } from '../constants/wordlist';
 
-export type QuizMode = 'kana_to_romaji' | 'romaji_to_kana' | 'kana_to_romaji_phrases' | 'romaji_to_kana_phrases';
+export type QuizMode = 'kana_to_romaji' | 'romaji_to_kana' | 'kana_to_romaji_words' | 'romaji_to_kana_words';
 
 export interface QuizState {
     quizActive: boolean;
     quizMode: QuizMode;
-    currentKana: KanaItem | { kana: string; romaji: string; type: 'Hiragana' | 'Katakana' } | null;
+    currentKana: KanaItem | WordItem | null;
     score: number;
     mistakes: number;
     questionAnswered: boolean;
@@ -110,34 +111,93 @@ export function useQuiz(lang: Language) {
         return Array.from(opts).sort(() => Math.random() - 0.5);
     }, []);
 
-    const generatePhrase = useCallback((scriptType: 'Hiragana' | 'Katakana', selectedHira: string[], selectedKata: string[]) => {
-        let pool: { kana: string; romaji: string }[] = [];
+    const generateWord = useCallback((scriptType: 'Hiragana' | 'Katakana', selectedHira: string[], selectedKata: string[], recentWords?: string[]) => {
+        const allowedKanas = new Set<string>();
         if (scriptType === 'Hiragana') {
             selectedHira.forEach(group => {
-                kanaData[group].h.forEach(item => {
-                    const [kana, romaji] = item.split(':');
-                    pool.push({ kana, romaji });
-                });
+                if (kanaData[group]) {
+                    kanaData[group].h.forEach(item => {
+                        const [kana] = item.split(':');
+                        allowedKanas.add(kana);
+                    });
+                }
             });
         } else {
             selectedKata.forEach(group => {
-                kanaData[group].k.forEach(item => {
-                    const [kana, romaji] = item.split(':');
-                    pool.push({ kana, romaji });
-                });
+                if (kanaData[group]) {
+                    kanaData[group].k.forEach(item => {
+                        const [kana] = item.split(':');
+                        allowedKanas.add(kana);
+                    });
+                }
             });
         }
-        
-        if (pool.length === 0) return null;
 
-        // Progressive learning logic: limit selection pool to seen characters + first 3 unseen ones
+        if (allowedKanas.size === 0) return null;
+
+        const candidateWords = wordlist.filter(word => {
+            if (word.type !== scriptType) return false;
+            for (let i = 0; i < word.kana.length; i++) {
+                const char = word.kana[i];
+                if (!allowedKanas.has(char)) {
+                    return false;
+                }
+            }
+            return true;
+        });
+
+        // Filter out recently shown words from candidates to prevent quick repetition
+        let filteredCandidates = candidateWords;
+        if (recentWords && recentWords.length > 0) {
+            const historyLimit = Math.min(4, Math.floor(candidateWords.length / 2));
+            if (historyLimit > 0) {
+                const recentSet = new Set(recentWords.slice(-historyLimit));
+                const freshCandidates = candidateWords.filter(w => !recentSet.has(w.kana));
+                if (freshCandidates.length > 0) {
+                    filteredCandidates = freshCandidates;
+                }
+            }
+        }
+
+        if (filteredCandidates.length > 0) {
+            const chosen = filteredCandidates[Math.floor(Math.random() * filteredCandidates.length)];
+            return {
+                kana: chosen.kana,
+                romaji: chosen.romaji,
+                translation: chosen.translation,
+                partOfSpeech: chosen.partOfSpeech,
+                type: chosen.type
+            };
+        }
+
+        const fallbackPool: { kana: string; romaji: string }[] = [];
+        if (scriptType === 'Hiragana') {
+            selectedHira.forEach(group => {
+                if (kanaData[group]) {
+                    kanaData[group].h.forEach(item => {
+                        const [kana, romaji] = item.split(':');
+                        fallbackPool.push({ kana, romaji });
+                    });
+                }
+            });
+        } else {
+            selectedKata.forEach(group => {
+                if (kanaData[group]) {
+                    kanaData[group].k.forEach(item => {
+                        const [kana, romaji] = item.split(':');
+                        fallbackPool.push({ kana, romaji });
+                    });
+                }
+            });
+        }
+
         const stats = storageService.loadStats();
-        const seenPool = pool.filter(item => stats[item.kana] !== undefined);
-        const unseenPool = pool.filter(item => stats[item.kana] === undefined);
+        const seenPool = fallbackPool.filter(item => stats[item.kana] !== undefined);
+        const unseenPool = fallbackPool.filter(item => stats[item.kana] === undefined);
         const activeUnseen = unseenPool.slice(0, 3);
         const effectivePool = [...seenPool, ...activeUnseen];
-        const finalPool = effectivePool.length > 0 ? effectivePool : pool;
-        
+        const finalPool = effectivePool.length > 0 ? effectivePool : fallbackPool;
+
         const len = Math.floor(Math.random() * 4) + 2;
         let kanaStr = '';
         let romajiStr = '';
@@ -146,20 +206,25 @@ export function useQuiz(lang: Language) {
             kanaStr += char.kana;
             romajiStr += char.romaji;
         }
-        
+
         return {
             kana: kanaStr,
             romaji: romajiStr,
+            translation: {
+                en: "Practice Kana String",
+                it: "Sequenza di kana di pratica"
+            },
+            partOfSpeech: "practice",
             type: scriptType
         };
     }, []);
 
     const nextQuestion = useCallback((mode: QuizMode, selectedHira: string[], selectedKata: string[], forceKana?: any) => {
-        const isPhrasesMode = mode.endsWith('_phrases');
+        const isWordsMode = mode.endsWith('_words');
         let nextKana: any = null;
         let generatedOpts: string[] = [];
 
-        if (isPhrasesMode) {
+        if (isWordsMode) {
             const scripts: ('Hiragana' | 'Katakana')[] = [];
             if (selectedHira.length > 0) scripts.push('Hiragana');
             if (selectedKata.length > 0) scripts.push('Katakana');
@@ -168,12 +233,20 @@ export function useQuiz(lang: Language) {
                 return;
             }
             const scriptType = scripts[Math.floor(Math.random() * scripts.length)];
-            let phrase = generatePhrase(scriptType, selectedHira, selectedKata);
+            let word = generateWord(scriptType, selectedHira, selectedKata, historyRef.current);
             const prevKana = currentKanaRef.current;
-            if (prevKana && phrase && phrase.kana === prevKana.kana) {
-                phrase = generatePhrase(scriptType, selectedHira, selectedKata) || phrase;
+            if (prevKana && word && word.kana === prevKana.kana) {
+                word = generateWord(scriptType, selectedHira, selectedKata, historyRef.current) || word;
             }
-            nextKana = phrase;
+            nextKana = word;
+
+            // Record nextKana in history buffer (up to 10 entries)
+            if (nextKana) {
+                historyRef.current = [...historyRef.current, nextKana.kana];
+                if (historyRef.current.length > 10) {
+                    historyRef.current = historyRef.current.slice(1);
+                }
+            }
         } else {
             const pool = activePoolRef.current;
             
@@ -243,7 +316,7 @@ export function useQuiz(lang: Language) {
                 ? (rollingAnswersRef.current.filter(Boolean).length / rollingAnswersRef.current.length)
                 : 1.0
         }));
-    }, [generatePhrase, selectWeightedRandom, generateOptions]);
+    }, [generateWord, selectWeightedRandom, generateOptions]);
 
     const startQuiz = useCallback((mode: QuizMode, selectedHira: string[], selectedKata: string[]) => {
         const pool: any[] = [];
@@ -328,8 +401,8 @@ export function useQuiz(lang: Language) {
             const cleanUser = userAnswer.trim().toLowerCase();
             if (cleanUser === '') return prev;
 
-            const isRomajiToKanaPhrases = prev.quizMode === 'romaji_to_kana_phrases';
-            const correctAnswer = isRomajiToKanaPhrases ? prev.currentKana.kana : prev.currentKana.romaji;
+            const isRomajiToKanaWords = prev.quizMode === 'romaji_to_kana_words';
+            const correctAnswer = isRomajiToKanaWords ? prev.currentKana.kana : prev.currentKana.romaji;
             const isCorrect = cleanUser === correctAnswer;
 
             // Update rolling answers
@@ -347,7 +420,7 @@ export function useQuiz(lang: Language) {
             let unlockedItemToForce: any = null;
 
             if (isCorrect) {
-                if (!prev.quizMode.endsWith('_phrases')) {
+                if (!prev.quizMode.endsWith('_words')) {
                     storageService.recordResult(prev.currentKana.kana, true);
                     
                     if (rollingAcc >= 0.8) {
@@ -407,7 +480,7 @@ export function useQuiz(lang: Language) {
                     newlyUnlockedKana: newlyUnlocked
                 };
             } else {
-                if (!prev.quizMode.endsWith('_phrases')) {
+                if (!prev.quizMode.endsWith('_words')) {
                     storageService.recordResult(prev.currentKana.kana, false);
 
                     const confusedItem = activePoolRef.current.find(
@@ -539,10 +612,10 @@ export function useQuiz(lang: Language) {
         setState(prev => {
             if (!prev.currentKana) return prev;
 
-            const isRomajiToKanaPhrases = prev.quizMode === 'romaji_to_kana_phrases';
-            const solution = isRomajiToKanaPhrases ? prev.currentKana.kana : prev.currentKana.romaji;
+            const isRomajiToKanaWords = prev.quizMode === 'romaji_to_kana_words';
+            const solution = isRomajiToKanaWords ? prev.currentKana.kana : prev.currentKana.romaji;
 
-            if (!prev.quizMode.endsWith('_phrases')) {
+            if (!prev.quizMode.endsWith('_words')) {
                 storageService.recordResult(prev.currentKana.kana, false);
             }
 

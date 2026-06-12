@@ -14,7 +14,7 @@ export interface TranslationDictionary {
     resetSuccess: string;
     selectGroupAlert: string;
     single: string;
-    phrases: string;
+    words: string;
     kanaToRomaji: string;
     romajiToKana: string;
     changeFilters: string;
@@ -43,6 +43,13 @@ export interface TranslationDictionary {
     newlyUnlockedToast: (kana: string) => string;
     allUnlocked: string;
     unlockedCountLabel: (unlocked: number, total: number) => string;
+    posNoun: string;
+    posAdjective: string;
+    posVerb: string;
+    posPronoun: string;
+    posAdverb: string;
+    posNumber: string;
+    posPractice: string;
 }
 
 export const translations: Record<Language, TranslationDictionary> = {
@@ -60,7 +67,7 @@ export const translations: Record<Language, TranslationDictionary> = {
         resetSuccess: "Statistics reset successfully!",
         selectGroupAlert: "Select at least one group to start!",
         single: "Single",
-        phrases: "Phrases",
+        words: "Words",
         kanaToRomaji: "Kana → Romaji",
         romajiToKana: "Romaji → Kana",
         changeFilters: "← Change Filters",
@@ -88,7 +95,14 @@ export const translations: Record<Language, TranslationDictionary> = {
         accuracyWarning: "Accuracy must be ≥ 80% to progress!",
         newlyUnlockedToast: (kana) => `✨ New character unlocked: ${kana}! ✨`,
         allUnlocked: "All selected characters unlocked!",
-        unlockedCountLabel: (unlocked, total) => `Unlocked: ${unlocked} / ${total}`
+        unlockedCountLabel: (unlocked, total) => `Unlocked: ${unlocked} / ${total}`,
+        posNoun: "noun",
+        posAdjective: "adjective",
+        posVerb: "verb",
+        posPronoun: "pronoun",
+        posAdverb: "adverb",
+        posNumber: "number",
+        posPractice: "practice"
     },
     it: {
         title: "sKANnA",
@@ -104,7 +118,7 @@ export const translations: Record<Language, TranslationDictionary> = {
         resetSuccess: "Statistiche resettate con successo!",
         selectGroupAlert: "Seleziona almeno un gruppo per iniziare!",
         single: "Singoli",
-        phrases: "Frasi",
+        words: "Parole",
         kanaToRomaji: "Kana → Romaji",
         romajiToKana: "Romaji → Kana",
         changeFilters: "← Cambia Filtri",
@@ -132,6 +146,13 @@ export const translations: Record<Language, TranslationDictionary> = {
         accuracyWarning: "La precisione deve essere ≥ 80% per progredire!",
         newlyUnlockedToast: (kana) => `✨ Nuovo carattere sbloccato: ${kana}! ✨`,
         allUnlocked: "Tutti i caratteri selezionati sono sbloccati!",
-        unlockedCountLabel: (unlocked, total) => `Sbloccati: ${unlocked} / ${total}`
+        unlockedCountLabel: (unlocked, total) => `Sbloccati: ${unlocked} / ${total}`,
+        posNoun: "nome",
+        posAdjective: "aggettivo",
+        posVerb: "verbo",
+        posPronoun: "pronome",
+        posAdverb: "avverbio",
+        posNumber: "numero",
+        posPractice: "pratica"
     }
 };

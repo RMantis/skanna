@@ -226,6 +226,7 @@ function App() {
           ) : (
             <QuizScreen
               t={t}
+              lang={lang}
               quizState={quiz}
               selectedHira={selectedHira}
               selectedKata={selectedKata}

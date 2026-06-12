@@ -3,10 +3,11 @@ import { QuizState } from '../hooks/useQuiz';
 import { imeService } from '../services/imeService';
 import { storageService, JapaneseFont } from '../services/storageService';
 import { kanaData } from '../constants/kanaData';
-import { TranslationDictionary } from '../constants/translations';
+import { Language, TranslationDictionary } from '../constants/translations';
 
 interface QuizScreenProps {
     t: TranslationDictionary;
+    lang: Language;
     quizState: QuizState;
     selectedHira: string[];
     selectedKata: string[];
@@ -19,6 +20,7 @@ interface QuizScreenProps {
 
 export const QuizScreen: React.FC<QuizScreenProps> = ({
     t,
+    lang,
     quizState,
     selectedHira,
     selectedKata,
@@ -189,7 +191,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
-        if (quizMode === 'romaji_to_kana_phrases' && currentKana) {
+        if (quizMode === 'romaji_to_kana_words' && currentKana) {
             const converted = imeService.convertRomajiToKana(val, currentKana.type);
             setInputValue(converted);
         } else {
@@ -198,8 +200,8 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        const isPhrasesMode = quizMode.endsWith('_phrases');
-        if (e.key === 'Enter' || (e.key === ' ' && !isPhrasesMode)) {
+        const isWordsMode = quizMode.endsWith('_words');
+        if (e.key === 'Enter' || (e.key === ' ' && !isWordsMode)) {
             e.preventDefault();
             onCheckAnswer(inputValue, selectedHira, selectedKata);
         } else if (e.key === 'Escape') {
@@ -238,7 +240,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
 
     if (!currentKana) return null;
 
-    const isNew = !quizMode.endsWith('_phrases') && (() => {
+    const isNew = !quizMode.endsWith('_words') && (() => {
         const stats = storageService.loadStats();
         const stat = stats[currentKana.kana];
         return !stat || ((stat.correct || 0) === 0 && (stat.wrong || 0) === 0);
@@ -256,6 +258,19 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
         return 'font-handwriting';
     };
     const fontClass = getFontClass(currentActiveFont);
+
+    const getPosLabel = (pos: string) => {
+        switch (pos) {
+            case 'noun': return t.posNoun;
+            case 'adjective': return t.posAdjective;
+            case 'verb': return t.posVerb;
+            case 'pronoun': return t.posPronoun;
+            case 'adverb': return t.posAdverb;
+            case 'number': return t.posNumber;
+            case 'practice': return t.posPractice;
+            default: return pos;
+        }
+    };
 
     const isTypingMode = quizMode !== 'romaji_to_kana';
 
@@ -299,7 +314,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
             </div>
 
             {/* Jukurendo Progress Bar */}
-            {!quizMode.endsWith('_phrases') && (
+            {!quizMode.endsWith('_words') && (
                 <div className="unlock-progress-container">
                     {/* Confetti particles */}
                     {confetti.map(p => (
@@ -341,10 +356,19 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
             </div>
 
             <div className={`kana-display ${fontClass}`} id="kanaDisplay">
-                {quizMode === 'kana_to_romaji' || quizMode === 'kana_to_romaji_phrases'
+                {quizMode === 'kana_to_romaji' || quizMode === 'kana_to_romaji_words'
                     ? currentKana.kana
                     : currentKana.romaji}
             </div>
+
+            {quizMode.endsWith('_words') && currentKana && 'translation' in currentKana && (
+                <div className="word-translation">
+                    {currentKana.translation[lang]}
+                    {('partOfSpeech' in currentKana) && (
+                        <span style={{ opacity: 0.7, fontSize: '0.9em' }}> ({getPosLabel((currentKana as any).partOfSpeech)})</span>
+                    )}
+                </div>
+            )}
 
             {isTypingMode ? (
                 <>
@@ -355,7 +379,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
                             value={inputValue}
                             onChange={handleInputChange}
                             onKeyDown={handleKeyDown}
-                            placeholder={quizMode === 'romaji_to_kana_phrases' ? 'kana' : 'romaji'}
+                            placeholder={quizMode === 'romaji_to_kana_words' ? 'kana' : 'romaji'}
                             autoComplete="off"
                         />
                     </div>
@@ -370,7 +394,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
                     </div>
 
                     {/* Virtual Keyboard */}
-                    {quizMode === 'romaji_to_kana_phrases' && activeKeyboardKeysByGroup.length > 0 && (
+                    {quizMode === 'romaji_to_kana_words' && activeKeyboardKeysByGroup.length > 0 && (
                         <div className="virtual-keyboard">
                             {activeKeyboardKeysByGroup.map((row, rIdx) => (
                                 <div key={rIdx} className="keyboard-row">
