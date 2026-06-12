@@ -3,7 +3,7 @@ import { useQuiz } from './hooks/useQuiz';
 import { SelectionScreen } from './components/SelectionScreen';
 import { QuizScreen } from './components/QuizScreen';
 import { Language, translations } from './constants/translations';
-import { storageService } from './services/storageService';
+import { storageService, JapaneseFont } from './services/storageService';
 
 function App() {
   const [lang, setLang] = useState<Language>(storageService.loadLanguage());
@@ -15,8 +15,12 @@ function App() {
       return 'dark';
     }
   });
+  const [font, setFont] = useState<JapaneseFont>(() => storageService.loadFont());
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const [fontDropdownOpen, setFontDropdownOpen] = useState(false);
+  
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const fontDropdownRef = useRef<HTMLDivElement>(null);
 
   const quiz = useQuiz(lang);
   const [selectedHira, setSelectedHira] = useState<string[]>([]);
@@ -32,11 +36,14 @@ function App() {
     }
   }, [theme]);
 
-  // Click outside handling for language custom dropdown
+  // Click outside handling for custom dropdowns
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setLangDropdownOpen(false);
+      }
+      if (fontDropdownRef.current && !fontDropdownRef.current.contains(event.target as Node)) {
+        setFontDropdownOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -55,6 +62,11 @@ function App() {
   const handleLanguageChange = (newLang: Language) => {
     setLang(newLang);
     storageService.saveLanguage(newLang);
+  };
+
+  const handleFontChange = (newFont: JapaneseFont) => {
+    setFont(newFont);
+    storageService.saveFont(newFont);
   };
 
   const toggleTheme = () => {
@@ -91,6 +103,49 @@ function App() {
         >
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
+
+        <div className="custom-dropdown" ref={fontDropdownRef}>
+          <button 
+            type="button"
+            className="dropdown-trigger" 
+            onClick={() => setFontDropdownOpen(!fontDropdownOpen)}
+            title={t.fontSelection}
+          >
+            🔤
+          </button>
+          {fontDropdownOpen && (
+            <div className="dropdown-menu">
+              <button 
+                type="button"
+                className={`dropdown-item ${font === 'random' ? 'active' : ''}`} 
+                onClick={() => { handleFontChange('random'); setFontDropdownOpen(false); }}
+              >
+                🎲 {t.fontRandom}
+              </button>
+              <button 
+                type="button"
+                className={`dropdown-item font-gothic ${font === 'gothic' ? 'active' : ''}`} 
+                onClick={() => { handleFontChange('gothic'); setFontDropdownOpen(false); }}
+              >
+                A {t.fontGothic}
+              </button>
+              <button 
+                type="button"
+                className={`dropdown-item font-mincho ${font === 'mincho' ? 'active' : ''}`} 
+                onClick={() => { handleFontChange('mincho'); setFontDropdownOpen(false); }}
+              >
+                A {t.fontMincho}
+              </button>
+              <button 
+                type="button"
+                className={`dropdown-item font-handwriting ${font === 'handwriting' ? 'active' : ''}`} 
+                onClick={() => { handleFontChange('handwriting'); setFontDropdownOpen(false); }}
+              >
+                A {t.fontHandwriting}
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="custom-dropdown" ref={dropdownRef}>
           <button 
@@ -132,6 +187,7 @@ function App() {
             quizState={quiz}
             selectedHira={selectedHira}
             selectedKata={selectedKata}
+            japaneseFont={font}
             onStopQuiz={quiz.stopQuiz}
             onCheckAnswer={quiz.checkAnswer}
             onSelectOption={quiz.selectOption}

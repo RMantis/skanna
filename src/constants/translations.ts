@@ -30,6 +30,11 @@ export interface TranslationDictionary {
     switchToLight: string;
     switchToDark: string;
     changeLanguage: string;
+    fontSelection: string;
+    fontGothic: string;
+    fontMincho: string;
+    fontHandwriting: string;
+    fontRandom: string;
 }
 
 export const translations: Record<Language, TranslationDictionary> = {
@@ -62,7 +67,12 @@ export const translations: Record<Language, TranslationDictionary> = {
         selectedQuizSummary: (total, hira, kata) => `Selected: ${total} characters (${hira} Hiragana, ${kata} Katakana)`,
         switchToLight: "Switch to Light Theme",
         switchToDark: "Switch to Dark Theme",
-        changeLanguage: "Change Language"
+        changeLanguage: "Change Language",
+        fontSelection: "Japanese Font",
+        fontGothic: "Gothic (Typed)",
+        fontMincho: "Mincho (Printed)",
+        fontHandwriting: "Handwriting (Recommended)",
+        fontRandom: "Random (Mix)"
     },
     it: {
         title: "sKANnA",
@@ -93,6 +103,11 @@ export const translations: Record<Language, TranslationDictionary> = {
         selectedQuizSummary: (total, hira, kata) => `Selezionati: ${total} caratteri (${hira} Hiragana, ${kata} Katakana)`,
         switchToLight: "Attiva Tema Chiaro",
         switchToDark: "Attiva Tema Scuro",
-        changeLanguage: "Cambia Lingua"
+        changeLanguage: "Cambia Lingua",
+        fontSelection: "Font Giapponese",
+        fontGothic: "Gothic (Tipizzato)",
+        fontMincho: "Mincho (Serif)",
+        fontHandwriting: "Scritto a mano (Consigliato)",
+        fontRandom: "Casuale (Misto)"
     }
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { QuizState } from '../hooks/useQuiz';
 import { imeService } from '../services/imeService';
-import { storageService } from '../services/storageService';
+import { storageService, JapaneseFont } from '../services/storageService';
 import { kanaData } from '../constants/kanaData';
 import { TranslationDictionary } from '../constants/translations';
 
@@ -10,6 +10,7 @@ interface QuizScreenProps {
     quizState: QuizState;
     selectedHira: string[];
     selectedKata: string[];
+    japaneseFont: JapaneseFont;
     onStopQuiz: () => void;
     onCheckAnswer: (answer: string, hira: string[], kata: string[]) => void;
     onSelectOption: (option: string, hira: string[], kata: string[]) => void;
@@ -21,6 +22,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
     quizState,
     selectedHira,
     selectedKata,
+    japaneseFont,
     onStopQuiz,
     onCheckAnswer,
     onSelectOption,
@@ -39,7 +41,18 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
 
     const [inputValue, setInputValue] = useState('');
     const [clickedOption, setClickedOption] = useState<string | null>(null);
+    const [currentActiveFont, setCurrentActiveFont] = useState<'gothic' | 'mincho' | 'handwriting'>('gothic');
     const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (japaneseFont === 'random') {
+            const fonts: ('gothic' | 'mincho' | 'handwriting')[] = ['gothic', 'mincho', 'handwriting'];
+            const randomFont = fonts[Math.floor(Math.random() * fonts.length)];
+            setCurrentActiveFont(randomFont);
+        } else {
+            setCurrentActiveFont(japaneseFont);
+        }
+    }, [currentKana, japaneseFont]);
 
     useEffect(() => {
         if (quizMode !== 'romaji_to_kana') {
@@ -117,6 +130,13 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
             : t.newKanaAnswer(currentKana.kana)
     ) : '';
 
+    const getFontClass = (f: 'gothic' | 'mincho' | 'handwriting') => {
+        if (f === 'gothic') return 'font-gothic';
+        if (f === 'mincho') return 'font-mincho';
+        return 'font-handwriting';
+    };
+    const fontClass = getFontClass(currentActiveFont);
+
     const isTypingMode = quizMode !== 'romaji_to_kana';
 
     let hiraSelCount = 0;
@@ -142,7 +162,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
                 {hint}
             </div>
 
-            <div className="kana-display" id="kanaDisplay">
+            <div className={`kana-display ${fontClass}`} id="kanaDisplay">
                 {quizMode === 'kana_to_romaji' || quizMode === 'kana_to_romaji_phrases'
                     ? currentKana.kana
                     : currentKana.romaji}
@@ -187,7 +207,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
                             <button
                                 key={opt}
                                 type="button"
-                                className={`option-btn ${btnClass}`}
+                                className={`option-btn ${btnClass} ${fontClass}`}
                                 onClick={() => handleOptionClick(opt)}
                                 disabled={optionSelected}
                             >

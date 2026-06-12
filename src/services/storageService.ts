@@ -1,5 +1,7 @@
 import { Language } from '../constants/translations';
 
+export type JapaneseFont = 'gothic' | 'mincho' | 'handwriting' | 'random';
+
 export interface KanaStat {
     correct: number;
     wrong: number;
@@ -16,8 +18,30 @@ const STATS_KEY = 'sKANnA_stats';
 const SELECTION_KEY = 'sKANnA_selection';
 const LANGUAGE_KEY = 'sKANnA_language';
 const LAST_MODE_KEY = 'sKANnA_last_mode';
+const FONT_KEY = 'sKANnA_font';
 
 export const storageService = {
+    loadFont(): JapaneseFont {
+        try {
+            const stored = localStorage.getItem(FONT_KEY);
+            if (stored === 'gothic' || stored === 'mincho' || stored === 'handwriting' || stored === 'random') {
+                return stored as JapaneseFont;
+            }
+            return 'random';
+        } catch (e) {
+            console.error("Error loading font preference:", e);
+            return 'random';
+        }
+    },
+
+    saveFont(font: JapaneseFont): void {
+        try {
+            localStorage.setItem(FONT_KEY, font);
+        } catch (e) {
+            console.error("Error saving font preference:", e);
+        }
+    },
+
     loadLanguage(): Language {
         try {
             const stored = localStorage.getItem(LANGUAGE_KEY);
