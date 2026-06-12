@@ -5,6 +5,7 @@ export type JapaneseFont = 'gothic' | 'mincho' | 'handwriting' | 'random';
 export interface KanaStat {
     correct: number;
     wrong: number;
+    unlocked?: boolean;
 }
 
 export type KanaStatsMap = Record<string, KanaStat>;
@@ -19,8 +20,26 @@ const SELECTION_KEY = 'sKANnA_selection';
 const LANGUAGE_KEY = 'sKANnA_language';
 const LAST_MODE_KEY = 'sKANnA_last_mode';
 const FONT_KEY = 'sKANnA_font';
+const UNLOCK_PROGRESS_KEY = 'sKANnA_unlock_progress';
 
 export const storageService = {
+    loadUnlockProgress(): number {
+        try {
+            const val = localStorage.getItem(UNLOCK_PROGRESS_KEY);
+            return val ? parseInt(val, 10) : 0;
+        } catch (e) {
+            return 0;
+        }
+    },
+
+    saveUnlockProgress(progress: number): void {
+        try {
+            localStorage.setItem(UNLOCK_PROGRESS_KEY, progress.toString());
+        } catch (e) {
+            console.error("Error saving unlock progress:", e);
+        }
+    },
+
     loadFont(): JapaneseFont {
         try {
             const stored = localStorage.getItem(FONT_KEY);

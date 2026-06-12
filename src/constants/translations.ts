@@ -36,6 +36,13 @@ export interface TranslationDictionary {
     fontMincho: string;
     fontHandwriting: string;
     fontRandom: string;
+    unlockProgressLabel: string;
+    unlockProgressLabelDetail: (progress: number) => string;
+    rollingAccuracyLabel: (acc: number) => string;
+    accuracyWarning: string;
+    newlyUnlockedToast: (kana: string) => string;
+    allUnlocked: string;
+    unlockedCountLabel: (unlocked: number, total: number) => string;
 }
 
 export const translations: Record<Language, TranslationDictionary> = {
@@ -74,7 +81,14 @@ export const translations: Record<Language, TranslationDictionary> = {
         fontGothic: "Gothic (Typed)",
         fontMincho: "Mincho (Printed)",
         fontHandwriting: "Handwriting (Recommended)",
-        fontRandom: "Random (Mix)"
+        fontRandom: "Random (Mix)",
+        unlockProgressLabel: "熟練度 (JUKURENDO / MASTERY)",
+        unlockProgressLabelDetail: (progress) => `Unlock progress: ${progress}%`,
+        rollingAccuracyLabel: (acc) => `Accuracy (last 10): ${acc}%`,
+        accuracyWarning: "Accuracy must be ≥ 80% to progress!",
+        newlyUnlockedToast: (kana) => `✨ New character unlocked: ${kana}! ✨`,
+        allUnlocked: "All selected characters unlocked!",
+        unlockedCountLabel: (unlocked, total) => `Unlocked: ${unlocked} / ${total}`
     },
     it: {
         title: "sKANnA",
@@ -111,6 +125,13 @@ export const translations: Record<Language, TranslationDictionary> = {
         fontGothic: "Gothic (Tipizzato)",
         fontMincho: "Mincho (Serif)",
         fontHandwriting: "Scritto a mano (Consigliato)",
-        fontRandom: "Casuale (Misto)"
+        fontRandom: "Casuale (Misto)",
+        unlockProgressLabel: "熟練度 (JUKURENDO / PADRONANZA)",
+        unlockProgressLabelDetail: (progress) => `Progresso sblocco: ${progress}%`,
+        rollingAccuracyLabel: (acc) => `Precisione (ultimi 10): ${acc}%`,
+        accuracyWarning: "La precisione deve essere ≥ 80% per progredire!",
+        newlyUnlockedToast: (kana) => `✨ Nuovo carattere sbloccato: ${kana}! ✨`,
+        allUnlocked: "Tutti i caratteri selezionati sono sbloccati!",
+        unlockedCountLabel: (unlocked, total) => `Sbloccati: ${unlocked} / ${total}`
     }
 };

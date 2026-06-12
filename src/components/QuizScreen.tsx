@@ -36,13 +36,92 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
         optionSelected,
         feedback,
         feedbackColor,
-        options
+        options,
+        unlockProgress,
+        rollingAccuracy,
+        newlyUnlockedKana
     } = quizState;
+
+    interface ConfettiParticle {
+        id: number;
+        color: string;
+        style: React.CSSProperties;
+    }
 
     const [inputValue, setInputValue] = useState('');
     const [clickedOption, setClickedOption] = useState<string | null>(null);
     const [currentActiveFont, setCurrentActiveFont] = useState<'gothic' | 'mincho' | 'handwriting'>('gothic');
+    const [confetti, setConfetti] = useState<ConfettiParticle[]>([]);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (newlyUnlockedKana) {
+            const colors = ['#89b4fa', '#f5c2e7', '#a6e3a1', '#f9e2af', '#f38ba8', '#cba6f7', '#ff007f', '#00ffff'];
+            const newConfetti: ConfettiParticle[] = [];
+            
+            for (let i = 0; i < 40; i++) {
+                const id = Math.random();
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const border = Math.floor(Math.random() * 4);
+                let startX = 0;
+                let startY = 0;
+                let angle = 0;
+                
+                if (border === 0) { // Top
+                    startX = Math.random() * 100;
+                    startY = 0;
+                    angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.2;
+                } else if (border === 1) { // Right
+                    startX = 100;
+                    startY = Math.random() * 100;
+                    angle = (Math.random() - 0.5) * 1.2;
+                } else if (border === 2) { // Bottom
+                    startX = Math.random() * 100;
+                    startY = 100;
+                    angle = Math.PI / 2 + (Math.random() - 0.5) * 1.2;
+                } else { // Left
+                    startX = 0;
+                    startY = Math.random() * 100;
+                    angle = Math.PI + (Math.random() - 0.5) * 1.2;
+                }
+                
+                const speed = 60 + Math.random() * 120;
+                const tx = Math.cos(angle) * speed;
+                const ty = Math.sin(angle) * speed;
+                const size = 5 + Math.random() * 7;
+                const rotation = Math.random() * 360;
+                const duration = 0.6 + Math.random() * 0.8;
+                
+                const style: React.CSSProperties = {
+                    position: 'absolute',
+                    left: `${startX}%`,
+                    top: `${startY}%`,
+                    width: `${size}px`,
+                    height: `${size}px`,
+                    backgroundColor: color,
+                    borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+                    pointerEvents: 'none',
+                    zIndex: 20,
+                    animation: `confetti-shoot ${duration}s cubic-bezier(0.1, 0.8, 0.3, 1) forwards`,
+                    // @ts-ignore
+                    '--tx': `${tx}px`,
+                    // @ts-ignore
+                    '--ty': `${ty}px`,
+                    // @ts-ignore
+                    '--rot': `${rotation + (Math.random() > 0.5 ? 360 : -360)}deg`,
+                };
+                
+                newConfetti.push({ id, color, style });
+            }
+            
+            setConfetti(newConfetti);
+            
+            const timer = setTimeout(() => {
+                setConfetti([]);
+            }, 1800);
+            return () => clearTimeout(timer);
+        }
+    }, [newlyUnlockedKana]);
 
     useEffect(() => {
         if (japaneseFont === 'random') {
@@ -190,6 +269,26 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
     });
     const totalSelCount = hiraSelCount + kataSelCount;
 
+    const unlockedCount = useMemo(() => {
+        const stats = storageService.loadStats();
+        const selectedChars: string[] = [];
+        selectedHira.forEach(group => {
+            if (kanaData[group]) {
+                kanaData[group].h.forEach(item => selectedChars.push(item.split(':')[0]));
+            }
+        });
+        selectedKata.forEach(group => {
+            if (kanaData[group]) {
+                kanaData[group].k.forEach(item => selectedChars.push(item.split(':')[0]));
+            }
+        });
+        
+        return selectedChars.filter(char => {
+            const stat = stats[char];
+            return stat?.unlocked === true || (stat && (stat.correct > 0 || stat.wrong > 0));
+        }).length;
+    }, [selectedHira, selectedKata, currentKana]);
+
     return (
         <div className="quiz-section" style={{ display: 'block' }}>
             <div className="top-bar">
@@ -198,6 +297,44 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
                     {currentKana.type}
                 </span>
             </div>
+
+            {/* Jukurendo Progress Bar */}
+            {!quizMode.endsWith('_phrases') && (
+                <div className="unlock-progress-container">
+                    {/* Confetti particles */}
+                    {confetti.map(p => (
+                        <div key={p.id} style={p.style} />
+                    ))}
+                    
+                    <div className="unlock-progress-header">
+                        <span className="unlock-label">
+                            {t.unlockProgressLabel} — {unlockProgress}%
+                        </span>
+                        <span className="accuracy-label">
+                            {t.unlockedCountLabel(unlockedCount, totalSelCount)}
+                        </span>
+                    </div>
+                    
+                    <div className={`unlock-progress-bar-wrapper ${unlockProgress === 100 ? 'level-up' : ''}`}>
+                        <div 
+                            className={`unlock-progress-bar-fill ${unlockProgress === 100 ? 'level-up' : ''} ${rollingAccuracy < 0.8 ? 'warning-fill' : ''}`}
+                            style={{ width: `${unlockProgress}%` }}
+                        />
+                    </div>
+                    
+                    <div className="unlock-progress-footer">
+                        {rollingAccuracy < 0.8 ? (
+                            <span className="accuracy-warning-text">
+                                ⚠️ {t.accuracyWarning} ({t.rollingAccuracyLabel(Math.round(rollingAccuracy * 100))})
+                            </span>
+                        ) : (
+                            <span className="progress-detail-text">
+                                {t.rollingAccuracyLabel(Math.round(rollingAccuracy * 100))}
+                            </span>
+                        )}
+                    </div>
+                </div>
+            )}
 
             <div className="hint-text" id="firstTimeHint">
                 {hint}
