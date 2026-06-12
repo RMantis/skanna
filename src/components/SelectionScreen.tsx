@@ -3,6 +3,7 @@ import { kanaData, getVowelIndex } from '../constants/kanaData';
 import { storageService } from '../services/storageService';
 import { QuizMode } from '../hooks/useQuiz';
 import { TranslationDictionary } from '../constants/translations';
+import bannerImg from '../assets/banner.jpg';
 
 interface SelectionScreenProps {
     t: TranslationDictionary;
@@ -100,7 +101,20 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz
 
     return (
         <div className="config-section">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '0 0 4px 0', padding: '0 5px' }}>
+            <div className="hero-section">
+                <h1 className="hero-title">
+                    <span className="brand-muted">s</span>
+                    <span className="brand-highlight">KAN</span>
+                    <span className="brand-muted">n</span>
+                    <span className="brand-highlight">A</span>
+                </h1>
+                <p className="hero-subtitle">KANA school</p>
+                <img src={bannerImg} alt="sKANnA Banner" className="hero-banner" />
+                <p className="hero-desc">{t.projectDesc}</p>
+                <hr className="hero-divider" />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '0 0 4px 0', padding: '0 5px', flexWrap: 'wrap', gap: '8px' }}>
                 <h3 style={{ margin: 0 }}>{t.chooseQuizMode}</h3>
                 {lastMode && (
                     <span style={{ fontSize: '0.85rem', color: 'var(--subtext)' }}>
@@ -108,7 +122,7 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz
                     </span>
                 )}
             </div>
-            
+
             <div className="start-modes-grid" style={{ marginBottom: '20px' }}>
                 <button type="button" className="mode-card single-kr" onClick={() => onStartQuiz('kana_to_romaji', selectedHira, selectedKata)}>
                     <span className="mode-badge">{t.single}</span>
@@ -138,16 +152,19 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz
             <div className="tables-container">
                 {/* Tabella Hiragana */}
                 <div className="table-wrapper">
-                    <h4 className="hira-title">Hiragana (<span id="hiraCountHeader">{counts.hira}</span>)</h4>
+                    <h4 className="hira-title">
+                        Hiragana
+                        <span className="count-badge" id="hiraCountHeader">{counts.hira}</span>
+                    </h4>
                     <table className="kana-table hira-table">
                         <thead>
                             <tr>
                                 <th style={{ width: '25px' }}>
-                                    <input 
-                                        type="checkbox" 
-                                        id="selectAllHira" 
-                                        checked={isAllHiraChecked} 
-                                        onChange={(e) => toggleSelectAll('hira', e.target.checked)} 
+                                    <input
+                                        type="checkbox"
+                                        id="selectAllHira"
+                                        checked={isAllHiraChecked}
+                                        onChange={(e) => toggleSelectAll('hira', e.target.checked)}
                                     />
                                 </th>
                                 <th style={{ textAlign: 'left', paddingLeft: '8px' }}>{t.group}</th>
@@ -171,17 +188,17 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz
                                 });
 
                                 return (
-                                    <tr 
-                                        key={group} 
+                                    <tr
+                                        key={group}
                                         className={isSelected ? 'selected-row' : ''}
                                         onClick={() => toggleRow('hira', group)}
                                         style={{ cursor: 'pointer' }}
                                     >
                                         <td onClick={(e) => e.stopPropagation()}>
-                                            <input 
-                                                type="checkbox" 
+                                            <input
+                                                type="checkbox"
                                                 checked={isSelected}
-                                                onChange={() => toggleRow('hira', group)} 
+                                                onChange={() => toggleRow('hira', group)}
                                             />
                                         </td>
                                         <td className="group-label">{group === 'Vowels' ? t.vowels : group}</td>
@@ -204,16 +221,19 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz
 
                 {/* Tabella Katakana */}
                 <div className="table-wrapper">
-                    <h4 className="kata-title">Katakana (<span id="kataCountHeader">{counts.kata}</span>)</h4>
+                    <h4 className="kata-title">
+                        Katakana
+                        <span className="count-badge" id="kataCountHeader">{counts.kata}</span>
+                    </h4>
                     <table className="kana-table kata-table">
                         <thead>
                             <tr>
                                 <th style={{ width: '25px' }}>
-                                    <input 
-                                        type="checkbox" 
-                                        id="selectAllKata" 
+                                    <input
+                                        type="checkbox"
+                                        id="selectAllKata"
                                         checked={isAllKataChecked}
-                                        onChange={(e) => toggleSelectAll('kata', e.target.checked)} 
+                                        onChange={(e) => toggleSelectAll('kata', e.target.checked)}
                                     />
                                 </th>
                                 <th style={{ textAlign: 'left', paddingLeft: '8px' }}>{t.group}</th>
@@ -237,17 +257,17 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz
                                 });
 
                                 return (
-                                    <tr 
-                                        key={group} 
+                                    <tr
+                                        key={group}
                                         className={isSelected ? 'selected-row' : ''}
                                         onClick={() => toggleRow('kata', group)}
                                         style={{ cursor: 'pointer' }}
                                     >
                                         <td onClick={(e) => e.stopPropagation()}>
-                                            <input 
-                                                type="checkbox" 
+                                            <input
+                                                type="checkbox"
                                                 checked={isSelected}
-                                                onChange={() => toggleRow('kata', group)} 
+                                                onChange={() => toggleRow('kata', group)}
                                             />
                                         </td>
                                         <td className="group-label">{group === 'Vowels' ? t.vowels : group}</td>

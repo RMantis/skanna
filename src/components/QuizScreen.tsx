@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { QuizState } from '../hooks/useQuiz';
 import { imeService } from '../services/imeService';
 import { storageService, JapaneseFont } from '../services/storageService';
@@ -66,6 +66,47 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
     useEffect(() => {
         setClickedOption(null);
     }, [currentKana]);
+
+    const activeKeyboardKeysByGroup = useMemo(() => {
+        if (!currentKana) return [];
+        const isHira = currentKana.type === 'Hiragana';
+        const selectedGroups = isHira ? selectedHira : selectedKata;
+        
+        const rows: { groupName: string; keys: string[] }[] = [];
+        
+        Object.keys(kanaData).forEach(groupName => {
+            if (selectedGroups.includes(groupName)) {
+                const list = isHira ? kanaData[groupName].h : kanaData[groupName].k;
+                const keys = list.map(item => item.split(':')[0]);
+                if (keys.length > 0) {
+                    rows.push({ groupName, keys });
+                }
+            }
+        });
+        
+        return rows;
+    }, [currentKana, selectedHira, selectedKata]);
+
+    const handleKeyClick = (char: string) => {
+        setInputValue(prev => prev + char);
+        if (inputRef.current) {
+            inputRef.current.focus();
+        }
+    };
+
+    const handleBackspace = () => {
+        setInputValue(prev => prev.slice(0, -1));
+        if (inputRef.current) {
+            inputRef.current.focus();
+        }
+    };
+
+    const handleClear = () => {
+        setInputValue('');
+        if (inputRef.current) {
+            inputRef.current.focus();
+        }
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
@@ -153,7 +194,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
         <div className="quiz-section" style={{ display: 'block' }}>
             <div className="top-bar">
                 <button className="btn-small" onClick={onStopQuiz}>{t.changeFilters}</button>
-                <span id="alfabetoCorrente" style={{ color: 'var(--subtext)', fontSize: '0.9rem' }}>
+                <span id="alfabetoCorrente" className="alphabet-badge">
                     {currentKana.type}
                 </span>
             </div>
@@ -190,6 +231,45 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
                             {t.dontRemember}
                         </button>
                     </div>
+
+                    {/* Virtual Keyboard */}
+                    {quizMode === 'romaji_to_kana_phrases' && activeKeyboardKeysByGroup.length > 0 && (
+                        <div className="virtual-keyboard">
+                            {activeKeyboardKeysByGroup.map((row, rIdx) => (
+                                <div key={rIdx} className="keyboard-row">
+                                    {row.keys.map((key) => (
+                                        <button
+                                            key={key}
+                                            type="button"
+                                            className={`keyboard-key ${fontClass}`}
+                                            onClick={() => handleKeyClick(key)}
+                                        >
+                                            {key}
+                                        </button>
+                                    ))}
+                                </div>
+                            ))}
+                            {/* Control row */}
+                            <div className="keyboard-row">
+                                <button
+                                    type="button"
+                                    className="keyboard-key control clear"
+                                    onClick={handleClear}
+                                    title="Clear"
+                                >
+                                    Clear
+                                </button>
+                                <button
+                                    type="button"
+                                    className="keyboard-key control backspace"
+                                    onClick={handleBackspace}
+                                    title="Backspace"
+                                >
+                                    ⌫
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </>
             ) : (
                 <div className="options-grid" id="optionsGrid" style={{ display: 'grid' }}>

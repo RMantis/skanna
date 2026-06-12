@@ -2,6 +2,7 @@ export type Language = 'en' | 'it';
 
 export interface TranslationDictionary {
     title: string;
+    projectDesc: string;
     chooseKana: string;
     chooseQuizMode: string;
     lastModeUsed: string;
@@ -40,7 +41,8 @@ export interface TranslationDictionary {
 export const translations: Record<Language, TranslationDictionary> = {
     en: {
         title: "sKANnA",
-        chooseKana: "Choose Kana for the Quiz",
+        projectDesc: "Welcome to sKANnA! Your fun, interactive shortcut to mastering Hiragana and Katakana. Pick your character pack, select your game mode, and level up your Japanese skills—no boring textbooks required! 🚀",
+        chooseKana: "Choose Kana",
         chooseQuizMode: "Choose Quiz Mode",
         lastModeUsed: "Last Mode Used",
         group: "Group",
@@ -76,7 +78,8 @@ export const translations: Record<Language, TranslationDictionary> = {
     },
     it: {
         title: "sKANnA",
-        chooseKana: "Scegli i Kana per il Quiz",
+        projectDesc: "Benvenuto su sKANnA! La tua scorciatoia interattiva (e divertente) per 'sKANnAre' e padroneggiare l'Hiragana e il Katakana. Scegli il tuo pacchetto, seleziona la modalità di gioco e allena la tua mente—niente noiosi libri di testo, promesso! 🚀",
+        chooseKana: "Scegli i Kana",
         chooseQuizMode: "Scegli la Modalità del Quiz",
         lastModeUsed: "Ultima modalità usata",
         group: "Gruppo",
