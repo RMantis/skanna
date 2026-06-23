@@ -88,22 +88,34 @@ export function useQuiz(lang: Language) {
     }, [getCharacterWeight]);
 
     const generateOptions = useCallback((correctKana: string, pool: KanaItem[]) => {
+        const correctItem = pool.find(item => item.kana === correctKana);
+        const correctRomaji = correctItem ? correctItem.romaji : '';
+
         const opts = new Set<string>([correctKana]);
-        const poolKanas = pool.map(item => item.kana);
         
-        while (opts.size < Math.min(4, poolKanas.length)) {
-            const randomKana = poolKanas[Math.floor(Math.random() * poolKanas.length)];
+        const validPoolKanas = pool
+            .filter(item => item.kana === correctKana || item.romaji !== correctRomaji)
+            .map(item => item.kana);
+        
+        while (opts.size < Math.min(4, validPoolKanas.length)) {
+            const randomKana = validPoolKanas[Math.floor(Math.random() * validPoolKanas.length)];
             opts.add(randomKana);
         }
         
         if (opts.size < 4) {
-            const allKanas: string[] = [];
+            const validAllKanas: string[] = [];
             Object.keys(kanaData).forEach(group => {
-                kanaData[group].h.forEach(item => allKanas.push(item.split(':')[0]));
-                kanaData[group].k.forEach(item => allKanas.push(item.split(':')[0]));
+                kanaData[group].h.forEach(item => {
+                    const [k, r] = item.split(':');
+                    if (k === correctKana || r !== correctRomaji) validAllKanas.push(k);
+                });
+                kanaData[group].k.forEach(item => {
+                    const [k, r] = item.split(':');
+                    if (k === correctKana || r !== correctRomaji) validAllKanas.push(k);
+                });
             });
-            while (opts.size < 4) {
-                const randomKana = allKanas[Math.floor(Math.random() * allKanas.length)];
+            while (opts.size < 4 && validAllKanas.length > 0) {
+                const randomKana = validAllKanas[Math.floor(Math.random() * validAllKanas.length)];
                 opts.add(randomKana);
             }
         }

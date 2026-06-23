@@ -21,7 +21,23 @@ export const kanaData: KanaDataMap = {
     "M": { h: ['ま:ma','み:mi','む:mu','め:me','も:mo'], k: ['マ:ma','ミ:mi','ム:mu','メ:me','モ:mo'] },
     "Y": { h: ['や:ya','ゆ:yu','よ:yo'], k: ['ヤ:ya','ユ:yu','ヨ:yo'] },
     "R": { h: ['ら:ra','り:ri','る:ru','れ:re','ろ:ro'], k: ['ラ:ra','リ:ri','ル:ru','レ:re','ロ:ro'] },
-    "W / N": { h: ['わ:wa','を:wo','ん:n'], k: ['ワ:wa','ヲ:wo','ン:n'] }
+    "W / N": { h: ['わ:wa','を:wo','ん:n'], k: ['ワ:wa','ヲ:wo','ン:n'] },
+    "G": { h: ['が:ga','ぎ:gi','ぐ:gu','げ:ge','ご:go'], k: ['ガ:ga','ギ:gi','グ:gu','ゲ:ge','ゴ:go'] },
+    "Z": { h: ['ざ:za','じ:ji','ず:zu','ぜ:ze','ぞ:zo'], k: ['ザ:za','ジ:ji','ズ:zu','ゼ:ze','ゾ:zo'] },
+    "D": { h: ['だ:da','ぢ:ji','づ:zu','で:de','ど:do'], k: ['ダ:da','ヂ:ji','ヅ:zu','デ:de','ド:do'] },
+    "B": { h: ['ば:ba','び:bi','ぶ:bu','べ:be','ぼ:bo'], k: ['バ:ba','ビ:bi','ブ:bu','ベ:be','ボ:bo'] },
+    "P": { h: ['ぱ:pa','ぴ:pi','ぷ:pu','ぺ:pe','ぽ:po'], k: ['パ:pa','ピ:pi','プ:pu','ペ:pe','ポ:po'] },
+    "KY": { h: ['きゃ:kya','きゅ:kyu','きょ:kyo'], k: ['キャ:kya','キュ:kyu','キョ:kyo'] },
+    "SH": { h: ['しゃ:sha','しゅ:shu','しょ:sho'], k: ['シャ:sha','シュ:shu','ショ:sho'] },
+    "CH": { h: ['ちゃ:cha','ちゅ:chu','ちょ:cho'], k: ['チャ:cha','チュ:chu','チョ:cho'] },
+    "NY": { h: ['にゃ:nya','にゅ:nyu','にょ:nyo'], k: ['ニャ:nya','ニュ:nyu','ニョ:nyo'] },
+    "HY": { h: ['ひゃ:hya','ひゅ:hyu','ひょ:hyo'], k: ['ヒャ:hya','ヒュ:hyu','ヒョ:hyo'] },
+    "MY": { h: ['みゃ:mya','みゅ:myu','みょ:myo'], k: ['ミャ:mya','ミュ:myu','ミョ:myo'] },
+    "RY": { h: ['りゃ:rya','りゅ:ryu','りょ:ryo'], k: ['リャ:rya','リュ:ryu','リョ:ryo'] },
+    "GY": { h: ['ぎゃ:gya','ぎゅ:gyu','ぎょ:gyo'], k: ['ギャ:gya','ギュ:gyu','ギョ:gyo'] },
+    "J": { h: ['じゃ:ja','じゅ:ju','じょ:jo'], k: ['ジャ:ja','ジュ:ju','ジョ:jo'] },
+    "BY": { h: ['びゃ:bya','びゅ:byu','びょ:byo'], k: ['ビャ:bya','ビュ:byu','ビョ:byo'] },
+    "PY": { h: ['ぴゃ:pya','ぴゅ:pyu','ぴょ:pyo'], k: ['ピャ:pya','ピュ:pyu','ピョ:pyo'] }
 };
 
 export function getVowelIndex(romaji: string): number {
