@@ -8,9 +8,11 @@ import bannerImg from '../assets/banner.jpg';
 interface SelectionScreenProps {
     t: TranslationDictionary;
     onStartQuiz: (mode: QuizMode, hira: string[], kata: string[]) => void;
+    isProgressiveMode: boolean;
+    onToggleProgressiveMode: (val: boolean) => void;
 }
 
-export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz }) => {
+export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz, isProgressiveMode, onToggleProgressiveMode }) => {
     const [selectedHira, setSelectedHira] = useState<string[]>([]);
     const [selectedKata, setSelectedKata] = useState<string[]>([]);
     const [lastMode, setLastMode] = useState<string | null>(null);
@@ -115,7 +117,17 @@ export const SelectionScreen: React.FC<SelectionScreenProps> = ({ t, onStartQuiz
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '0 0 4px 0', padding: '0 5px', flexWrap: 'wrap', gap: '8px' }}>
-                <h3 style={{ margin: 0 }}>{t.chooseQuizMode}</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <h3 style={{ margin: 0 }}>{t.chooseQuizMode}</h3>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.85rem', color: 'var(--subtext)', cursor: 'pointer' }}>
+                        <input
+                            type="checkbox"
+                            checked={isProgressiveMode}
+                            onChange={(e) => onToggleProgressiveMode(e.target.checked)}
+                        />
+                        {t.progressiveMode}
+                    </label>
+                </div>
                 {lastMode && (
                     <span style={{ fontSize: '0.85rem', color: 'var(--subtext)' }}>
                         {t.lastModeUsed}: <strong style={{ color: 'var(--primary-color)' }}>{getFriendlyModeName(lastMode)}</strong>

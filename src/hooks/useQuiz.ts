@@ -9,6 +9,7 @@ export type QuizMode = 'kana_to_romaji' | 'romaji_to_kana' | 'kana_to_romaji_wor
 export interface QuizState {
     quizActive: boolean;
     quizMode: QuizMode;
+    isProgressiveMode: boolean;
     currentKana: KanaItem | WordItem | null;
     score: number;
     mistakes: number;
@@ -26,6 +27,7 @@ export function useQuiz(lang: Language) {
     const [state, setState] = useState<QuizState>({
         quizActive: false,
         quizMode: 'kana_to_romaji',
+        isProgressiveMode: true,
         currentKana: null,
         score: 0,
         mistakes: 0,
@@ -44,6 +46,7 @@ export function useQuiz(lang: Language) {
     const historyRef = useRef<string[]>([]);
     const completeSelectedPoolRef = useRef<KanaItem[]>([]);
     const rollingAnswersRef = useRef<boolean[]>([]);
+    const isProgressiveModeRef = useRef<boolean>(true);
 
     const getCharacterWeight = useCallback((char: string) => {
         const stats = storageService.loadStats();
@@ -266,14 +269,18 @@ export function useQuiz(lang: Language) {
             if (forceKana) {
                 nextKana = forceKana;
             } else {
-                const stats = storageService.loadStats();
+                let basePool = pool;
 
-                // Progressive learning logic: limit selection pool to seen characters + first 3 unseen ones
-                const seenPool = pool.filter(item => stats[item.kana] !== undefined);
-                const unseenPool = pool.filter(item => stats[item.kana] === undefined);
-                const activeUnseen = unseenPool.slice(0, 3);
-                const effectivePool = [...seenPool, ...activeUnseen];
-                const basePool = effectivePool.length > 0 ? effectivePool : pool;
+                if (isProgressiveModeRef.current) {
+                    const stats = storageService.loadStats();
+
+                    // Progressive learning logic: limit selection pool to seen characters + first 3 unseen ones
+                    const seenPool = pool.filter(item => stats[item.kana] !== undefined);
+                    const unseenPool = pool.filter(item => stats[item.kana] === undefined);
+                    const activeUnseen = unseenPool.slice(0, 3);
+                    const effectivePool = [...seenPool, ...activeUnseen];
+                    basePool = effectivePool.length > 0 ? effectivePool : pool;
+                }
                 
                 let filteredPool = basePool;
 
@@ -331,7 +338,7 @@ export function useQuiz(lang: Language) {
         }));
     }, [generateWord, selectWeightedRandom, generateOptions]);
 
-    const startQuiz = useCallback((mode: QuizMode, selectedHira: string[], selectedKata: string[]) => {
+    const startQuiz = useCallback((mode: QuizMode, selectedHira: string[], selectedKata: string[], progressiveMode: boolean = true) => {
         const pool: any[] = [];
         selectedHira.forEach(group => {
             if (kanaData[group]) {
@@ -355,32 +362,38 @@ export function useQuiz(lang: Language) {
             return;
         }
 
-        // Initialize progressive unlock system
-        const stats = storageService.loadStats();
-        let unlockedChars = pool.filter(item => {
-            const stat = stats[item.kana];
-            return stat?.unlocked === true || (stat && (stat.correct > 0 || stat.wrong > 0));
-        });
+        isProgressiveModeRef.current = progressiveMode;
+        completeSelectedPoolRef.current = pool;
 
-        // Ensure at least min(3, pool.length) characters are unlocked
-        if (unlockedChars.length < Math.min(3, pool.length)) {
-            const firstThree = pool.slice(0, Math.min(3, pool.length));
-            firstThree.forEach(item => {
-                if (!stats[item.kana]) {
-                    stats[item.kana] = { correct: 0, wrong: 0 };
-                }
-                stats[item.kana].unlocked = true;
-            });
-            storageService.saveStats(stats);
-            // Re-filter
-            unlockedChars = pool.filter(item => {
+        if (progressiveMode) {
+            // Initialize progressive unlock system
+            const stats = storageService.loadStats();
+            let unlockedChars = pool.filter(item => {
                 const stat = stats[item.kana];
                 return stat?.unlocked === true || (stat && (stat.correct > 0 || stat.wrong > 0));
             });
+
+            // Ensure at least min(3, pool.length) characters are unlocked
+            if (unlockedChars.length < Math.min(3, pool.length)) {
+                const firstThree = pool.slice(0, Math.min(3, pool.length));
+                firstThree.forEach(item => {
+                    if (!stats[item.kana]) {
+                        stats[item.kana] = { correct: 0, wrong: 0 };
+                    }
+                    stats[item.kana].unlocked = true;
+                });
+                storageService.saveStats(stats);
+                // Re-filter
+                unlockedChars = pool.filter(item => {
+                    const stat = stats[item.kana];
+                    return stat?.unlocked === true || (stat && (stat.correct > 0 || stat.wrong > 0));
+                });
+            }
+            activePoolRef.current = unlockedChars;
+        } else {
+            activePoolRef.current = pool;
         }
 
-        completeSelectedPoolRef.current = pool;
-        activePoolRef.current = unlockedChars;
         currentKanaRef.current = null;
         historyRef.current = []; // Clear history buffer on quiz start
         rollingAnswersRef.current = []; // Clear rolling accuracy on start
@@ -388,6 +401,7 @@ export function useQuiz(lang: Language) {
         setState({
             quizActive: true,
             quizMode: mode,
+            isProgressiveMode: progressiveMode,
             currentKana: null,
             score: 0,
             mistakes: 0,
@@ -436,43 +450,45 @@ export function useQuiz(lang: Language) {
                 if (!prev.quizMode.endsWith('_words')) {
                     storageService.recordResult(prev.currentKana.kana, true);
                     
-                    if (rollingAcc >= 0.8) {
-                        nextProgress = Math.min(100, nextProgress + 10);
-                    }
+                    if (isProgressiveModeRef.current) {
+                        if (rollingAcc >= 0.8) {
+                            nextProgress = Math.min(100, nextProgress + 10);
+                        }
 
-                    if (nextProgress >= 100) {
-                        const stats = storageService.loadStats();
-                        const nextLockedItem = completeSelectedPoolRef.current.find(item => {
-                            const stat = stats[item.kana];
-                            return !stat || !stat.unlocked;
-                        });
+                        if (nextProgress >= 100) {
+                            const stats = storageService.loadStats();
+                            const nextLockedItem = completeSelectedPoolRef.current.find(item => {
+                                const stat = stats[item.kana];
+                                return !stat || !stat.unlocked;
+                            });
 
-                        if (nextLockedItem) {
-                            if (!stats[nextLockedItem.kana]) {
-                                stats[nextLockedItem.kana] = { correct: 0, wrong: 0 };
+                            if (nextLockedItem) {
+                                if (!stats[nextLockedItem.kana]) {
+                                    stats[nextLockedItem.kana] = { correct: 0, wrong: 0 };
+                                }
+                                stats[nextLockedItem.kana].unlocked = true;
+                                storageService.saveStats(stats);
+
+                                activePoolRef.current = [...activePoolRef.current, nextLockedItem];
+                                newlyUnlocked = nextLockedItem.kana;
+                                unlockedItemToForce = nextLockedItem;
+
+                                // Save 0 to storage immediately, but keep nextProgress at 100 in state for animation
+                                storageService.saveUnlockProgress(0);
+
+                                // Schedule resetting progress in state to 0 after 700ms
+                                setTimeout(() => {
+                                    setState(current => ({
+                                        ...current,
+                                        unlockProgress: 0
+                                    }));
+                                }, 700);
+                            } else {
+                                storageService.saveUnlockProgress(nextProgress);
                             }
-                            stats[nextLockedItem.kana].unlocked = true;
-                            storageService.saveStats(stats);
-
-                            activePoolRef.current = [...activePoolRef.current, nextLockedItem];
-                            newlyUnlocked = nextLockedItem.kana;
-                            unlockedItemToForce = nextLockedItem;
-                            
-                            // Save 0 to storage immediately, but keep nextProgress at 100 in state for animation
-                            storageService.saveUnlockProgress(0);
-                            
-                            // Schedule resetting progress in state to 0 after 700ms
-                            setTimeout(() => {
-                                setState(current => ({
-                                    ...current,
-                                    unlockProgress: 0
-                                }));
-                            }, 700);
                         } else {
                             storageService.saveUnlockProgress(nextProgress);
                         }
-                    } else {
-                        storageService.saveUnlockProgress(nextProgress);
                     }
                 }
 
@@ -503,8 +519,10 @@ export function useQuiz(lang: Language) {
                         storageService.recordResult(confusedItem.kana, false);
                     }
 
-                    nextProgress = Math.max(0, nextProgress - 10);
-                    storageService.saveUnlockProgress(nextProgress);
+                    if (isProgressiveModeRef.current) {
+                        nextProgress = Math.max(0, nextProgress - 10);
+                        storageService.saveUnlockProgress(nextProgress);
+                    }
                 }
                 return {
                     ...prev,
@@ -541,43 +559,45 @@ export function useQuiz(lang: Language) {
             let unlockedItemToForce: any = null;
 
             if (isCorrect) {
-                if (rollingAcc >= 0.8) {
-                    nextProgress = Math.min(100, nextProgress + 10);
-                }
+                if (isProgressiveModeRef.current) {
+                    if (rollingAcc >= 0.8) {
+                        nextProgress = Math.min(100, nextProgress + 10);
+                    }
 
-                if (nextProgress >= 100) {
-                    const stats = storageService.loadStats();
-                    const nextLockedItem = completeSelectedPoolRef.current.find(item => {
-                        const stat = stats[item.kana];
-                        return !stat || !stat.unlocked;
-                    });
+                    if (nextProgress >= 100) {
+                        const stats = storageService.loadStats();
+                        const nextLockedItem = completeSelectedPoolRef.current.find(item => {
+                            const stat = stats[item.kana];
+                            return !stat || !stat.unlocked;
+                        });
 
-                    if (nextLockedItem) {
-                        if (!stats[nextLockedItem.kana]) {
-                            stats[nextLockedItem.kana] = { correct: 0, wrong: 0 };
+                        if (nextLockedItem) {
+                            if (!stats[nextLockedItem.kana]) {
+                                stats[nextLockedItem.kana] = { correct: 0, wrong: 0 };
+                            }
+                            stats[nextLockedItem.kana].unlocked = true;
+                            storageService.saveStats(stats);
+
+                            activePoolRef.current = [...activePoolRef.current, nextLockedItem];
+                            newlyUnlocked = nextLockedItem.kana;
+                            unlockedItemToForce = nextLockedItem;
+
+                            // Save 0 to storage immediately, but keep nextProgress at 100 in state for animation
+                            storageService.saveUnlockProgress(0);
+
+                            // Schedule resetting progress in state to 0 after 700ms
+                            setTimeout(() => {
+                                setState(current => ({
+                                    ...current,
+                                    unlockProgress: 0
+                                }));
+                            }, 700);
+                        } else {
+                            storageService.saveUnlockProgress(nextProgress);
                         }
-                        stats[nextLockedItem.kana].unlocked = true;
-                        storageService.saveStats(stats);
-
-                        activePoolRef.current = [...activePoolRef.current, nextLockedItem];
-                        newlyUnlocked = nextLockedItem.kana;
-                        unlockedItemToForce = nextLockedItem;
-                        
-                        // Save 0 to storage immediately, but keep nextProgress at 100 in state for animation
-                        storageService.saveUnlockProgress(0);
-                        
-                        // Schedule resetting progress in state to 0 after 700ms
-                        setTimeout(() => {
-                            setState(current => ({
-                                ...current,
-                                unlockProgress: 0
-                            }));
-                        }, 700);
                     } else {
                         storageService.saveUnlockProgress(nextProgress);
                     }
-                } else {
-                    storageService.saveUnlockProgress(nextProgress);
                 }
 
                 // If a character was unlocked, delay the next question transition to 1100ms
@@ -600,8 +620,10 @@ export function useQuiz(lang: Language) {
                 // Penalize the confused character (the wrong option that was clicked)
                 storageService.recordResult(selectedOpt, false);
 
-                nextProgress = Math.max(0, nextProgress - 10);
-                storageService.saveUnlockProgress(nextProgress);
+                if (isProgressiveModeRef.current) {
+                    nextProgress = Math.max(0, nextProgress - 10);
+                    storageService.saveUnlockProgress(nextProgress);
+                }
 
                 setTimeout(() => {
                     nextQuestion(prev.quizMode, selectedHira, selectedKata);

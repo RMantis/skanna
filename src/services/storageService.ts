@@ -21,6 +21,7 @@ const LANGUAGE_KEY = 'sKANnA_language';
 const LAST_MODE_KEY = 'sKANnA_last_mode';
 const FONT_KEY = 'sKANnA_font';
 const UNLOCK_PROGRESS_KEY = 'sKANnA_unlock_progress';
+const PROGRESSIVE_MODE_KEY = 'sKANnA_progressive_mode';
 
 export const storageService = {
     loadUnlockProgress(): number {
@@ -155,6 +156,23 @@ export const storageService = {
             localStorage.setItem(LAST_MODE_KEY, mode);
         } catch (e) {
             console.error("Error saving last mode:", e);
+        }
+    },
+
+    loadProgressiveMode(): boolean {
+        try {
+            const val = localStorage.getItem(PROGRESSIVE_MODE_KEY);
+            return val ? val === 'true' : true;
+        } catch (e) {
+            return true;
+        }
+    },
+
+    saveProgressiveMode(enabled: boolean): void {
+        try {
+            localStorage.setItem(PROGRESSIVE_MODE_KEY, enabled.toString());
+        } catch (e) {
+            console.error("Error saving progressive mode:", e);
         }
     }
 };

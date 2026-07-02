@@ -19,6 +19,7 @@ function App() {
     }
   });
   const [font, setFont] = useState<JapaneseFont>(() => storageService.loadFont());
+  const [isProgressiveMode, setIsProgressiveMode] = useState<boolean>(() => storageService.loadProgressiveMode());
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [fontDropdownOpen, setFontDropdownOpen] = useState(false);
 
@@ -61,7 +62,12 @@ function App() {
     setSelectedHira(hira);
     setSelectedKata(kata);
     storageService.saveLastMode(mode);
-    quiz.startQuiz(mode, hira, kata);
+    quiz.startQuiz(mode, hira, kata, isProgressiveMode);
+  };
+
+  const handleToggleProgressiveMode = (enabled: boolean) => {
+    setIsProgressiveMode(enabled);
+    storageService.saveProgressiveMode(enabled);
   };
 
   const handleLanguageChange = (newLang: Language) => {
@@ -222,7 +228,12 @@ function App() {
       <main className={`main-content ${quiz.quizActive ? 'quiz-layout' : ''}`}>
         <div className="container">
           {!quiz.quizActive ? (
-            <SelectionScreen t={t} onStartQuiz={handleStartQuiz} />
+            <SelectionScreen
+              t={t}
+              onStartQuiz={handleStartQuiz}
+              isProgressiveMode={isProgressiveMode}
+              onToggleProgressiveMode={handleToggleProgressiveMode}
+            />
           ) : (
             <QuizScreen
               t={t}
