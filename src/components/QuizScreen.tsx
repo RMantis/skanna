@@ -240,7 +240,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
 
     if (!currentKana) return null;
 
-    const isNew = !quizMode.endsWith('_words') && (() => {
+    const isNew = quizState.isProgressiveMode && !quizMode.endsWith('_words') && (() => {
         const stats = storageService.loadStats();
         const stat = stats[currentKana.kana];
         return !stat || ((stat.correct || 0) === 0 && (stat.wrong || 0) === 0);
@@ -314,7 +314,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
             </div>
 
             {/* Jukurendo Progress Bar */}
-            {!quizMode.endsWith('_words') && (
+            {!quizMode.endsWith('_words') && quizState.isProgressiveMode && (
                 <div className="unlock-progress-container">
                     {/* Confetti particles */}
                     {confetti.map(p => (

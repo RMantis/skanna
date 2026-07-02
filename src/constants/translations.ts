@@ -50,6 +50,7 @@ export interface TranslationDictionary {
     posAdverb: string;
     posNumber: string;
     posPractice: string;
+    progressiveMode: string;
 }
 
 export const translations: Record<Language, TranslationDictionary> = {
@@ -102,7 +103,8 @@ export const translations: Record<Language, TranslationDictionary> = {
         posPronoun: "pronoun",
         posAdverb: "adverb",
         posNumber: "number",
-        posPractice: "practice"
+        posPractice: "practice",
+        progressiveMode: "Progressive Mode"
     },
     it: {
         title: "sKANnA",
@@ -153,6 +155,7 @@ export const translations: Record<Language, TranslationDictionary> = {
         posPronoun: "pronome",
         posAdverb: "avverbio",
         posNumber: "numero",
-        posPractice: "pratica"
+        posPractice: "pratica",
+        progressiveMode: "Modalità Progressiva"
     }
 };
