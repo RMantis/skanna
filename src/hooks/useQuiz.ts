@@ -42,7 +42,7 @@ export function useQuiz(lang: Language) {
     });
 
     const activePoolRef = useRef<KanaItem[]>([]);
-    const currentKanaRef = useRef<any>(null);
+    const currentKanaRef = useRef<KanaItem | WordItem | null>(null);
     const historyRef = useRef<string[]>([]);
     const completeSelectedPoolRef = useRef<KanaItem[]>([]);
     const rollingAnswersRef = useRef<boolean[]>([]);
@@ -235,9 +235,9 @@ export function useQuiz(lang: Language) {
         };
     }, []);
 
-    const nextQuestion = useCallback((mode: QuizMode, selectedHira: string[], selectedKata: string[], forceKana?: any) => {
+    const nextQuestion = useCallback((mode: QuizMode, selectedHira: string[], selectedKata: string[], forceKana?: KanaItem | null) => {
         const isWordsMode = mode.endsWith('_words');
-        let nextKana: any = null;
+        let nextKana: KanaItem | WordItem | null = null;
         let generatedOpts: string[] = [];
 
         if (isWordsMode) {
@@ -339,7 +339,7 @@ export function useQuiz(lang: Language) {
     }, [generateWord, selectWeightedRandom, generateOptions]);
 
     const startQuiz = useCallback((mode: QuizMode, selectedHira: string[], selectedKata: string[], progressiveMode: boolean = true) => {
-        const pool: any[] = [];
+        const pool: KanaItem[] = [];
         selectedHira.forEach(group => {
             if (kanaData[group]) {
                 kanaData[group].h.forEach(item => {
@@ -444,7 +444,7 @@ export function useQuiz(lang: Language) {
 
             let nextProgress = prev.unlockProgress;
             let newlyUnlocked: string | null = null;
-            let unlockedItemToForce: any = null;
+            let unlockedItemToForce: KanaItem | null = null;
 
             if (isCorrect) {
                 if (!prev.quizMode.endsWith('_words')) {
@@ -556,7 +556,7 @@ export function useQuiz(lang: Language) {
 
             let nextProgress = prev.unlockProgress;
             let newlyUnlocked: string | null = null;
-            let unlockedItemToForce: any = null;
+            let unlockedItemToForce: KanaItem | null = null;
 
             if (isCorrect) {
                 if (isProgressiveModeRef.current) {
