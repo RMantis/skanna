@@ -259,7 +259,7 @@ function App() {
           <span className="footer-version">&nbsp;v{packageJson.version}</span>
         </span>
         <span className="footer-group">
-          by Alessandro Rossini <span className="credit-divider">&bull;</span> <a href="https://github.com/RMantis/skanna" target="_blank" rel="noopener noreferrer">GitHub</a>
+          Made with <span className="footer-heart" aria-label="love">❤️</span> by Alessandro Rossini <span className="credit-divider">&bull;</span> <a href="https://github.com/RMantis/skanna" target="_blank" rel="noopener noreferrer">GitHub</a>
         </span>
       </footer>
     </>
